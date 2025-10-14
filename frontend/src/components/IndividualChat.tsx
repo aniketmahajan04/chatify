@@ -61,13 +61,13 @@ export const IndividualChat = ({ chat, onBack }: Props) => {
             </button>
           )}
           <img
-            src="https://randomuser.me/api/portraits/women/12.jpg"
+            src={chat.avatar}
             alt="Avatar"
             className="w-10 h-10 rounded-full border border-[#27272A]"
           />
           <div>
-            <h2 className="font-medium text-[#E4E6EB]">Emma Watson</h2>
-            <p className="text-xs text-gray-400">Online</p>
+            <h2 className="font-medium text-[#E4E6EB]">{chat.name}</h2>
+            <p className="text-xs text-gray-400">online</p>
           </div>
         </div>
 
@@ -109,7 +109,7 @@ export const IndividualChat = ({ chat, onBack }: Props) => {
       </div>
 
       {/* Input */}
-      <div className="flex items-center gap-2 px-4 py-3 border-t border-[#27272A] bg-[#18181B]">
+      <div className="flex items-center gap-2 px-4 py-3 border-t border-[#27272A] bg-[#18181B] mb-16 md:mb-0">
         <input
           type="text"
           placeholder="Type a message..."

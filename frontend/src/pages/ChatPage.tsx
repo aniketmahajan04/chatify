@@ -17,22 +17,37 @@ export const ChatPage = () => {
 
   return (
     <div className="flex h-screen">
+      {/* Sidebar (always visible on desktop) */}
       <SideBar />
 
-      {/* ChatsList */}
-      <div className={`md:flex ${selectedChat ? "hidden" : "flex"} flex-1`}>
-        <ChatsList onSelectChat={(chat) => setSelectedChat(chat)} />
+      {/* ✅ Desktop layout */}
+      <div className="hidden md:flex flex-1">
+        {/* Chats list */}
+        <div className="w-[30%] border-r border-[#27272A]">
+          <ChatsList onSelectChat={(chat) => setSelectedChat(chat)} />
+        </div>
+
+        {/* Chat area */}
+        <div className="flex-1">
+          {selectedChat ? (
+            <IndividualChat chat={selectedChat} />
+          ) : (
+            <div className="flex h-full items-center justify-center text-gray-400">
+              Select a chat to start messaging
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* IndividualChat */}
-      <div className={`flex-1 ${selectedChat ? "flex" : "hidden"} md:flex`}>
-        {selectedChat ? (
+      {/* ✅ Mobile layout (toggle between list and chat) */}
+      <div className="flex flex-1 md:hidden">
+        {!selectedChat ? (
+          <ChatsList onSelectChat={(chat) => setSelectedChat(chat)} />
+        ) : (
           <IndividualChat
             chat={selectedChat}
             onBack={() => setSelectedChat(null)}
           />
-        ) : (
-          <div className="flex-1 bg-[#181818"></div>
         )}
       </div>
     </div>

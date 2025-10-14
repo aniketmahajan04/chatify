@@ -53,7 +53,7 @@ export const ChatsList = ({ onSelectChat }: Props) => {
   );
 
   return (
-    <section className="flex flex-col bg-[#18181B] text-[#E4E6EB] md:w-[25%] w-full border-r border-[#27272A] h-screen overflow-hidden">
+    <section className="flex flex-col bg-[#18181B] text-[#E4E6EB] w-full border-r border-[#27272A] h-screen overflow-hidden">
       {/* Header */}
       <div className="p-4.5 flex items-center justify-between border-b border-[#27272A]">
         <h2 className="text-lg font-semibold text-[#A2A970]">Chats</h2>
