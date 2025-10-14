@@ -14,7 +14,7 @@ export const SideBar = () => {
   ];
 
   return (
-    <aside className="flex md:flex-col justify-between items-center md:bg-[#11111b] text-[#E4E6EB] md:w-20 w-full md:h-screen h-16 p-2 md:p-0 fixed md:static bottom-0 left-0 z-50">
+    <aside className="flex md:flex-col justify-between items-center md:bg-[#0D0D0D] text-[#E4E6EB] md:w-20 w-full md:h-screen h-16 p-2 md:p-0 fixed md:static bottom-0 left-0 z-50">
       {/* ===== Desktop Sidebar ===== */}
       <div className="hidden md:flex flex-col justify-between h-full items-center py-4">
         {/* Logo */}
