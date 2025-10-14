@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { FiPhone, FiSend, FiVideo } from "react-icons/fi";
+import { IoIosArrowRoundBack } from "react-icons/io";
 import type { Chat } from "../pages/ChatPage";
 
 type Props = {
@@ -57,7 +58,7 @@ export const IndividualChat = ({ chat, onBack }: Props) => {
               onClick={onBack}
               className="md:hidden p-2 rounded hover:bg-[#2A2A35]"
             >
-              Back
+              <IoIosArrowRoundBack />
             </button>
           )}
           <img

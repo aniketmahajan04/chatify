@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { FiSearch } from "react-icons/fi";
 import type { Chat } from "../pages/ChatPage";
+import { ProfilePopup } from "./ProfilePopUp";
 
 // Dummy data
 const chatData = [
@@ -46,6 +47,7 @@ type Props = {
 };
 
 export const ChatsList = ({ onSelectChat }: Props) => {
+  const [selectedProfile, setSelectedProfile] = useState<any | null>(null);
   const [search, setSearch] = useState("");
 
   const filteredChats = chatData.filter((chat) =>
@@ -85,6 +87,10 @@ export const ChatsList = ({ onSelectChat }: Props) => {
               <img
                 src={chat.avatar}
                 alt={chat.name}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedProfile(chat);
+                }}
                 className="w-12 h-12 rounded-full border border-[#27272A]"
               />
               <div>
@@ -106,6 +112,13 @@ export const ChatsList = ({ onSelectChat }: Props) => {
             </div>
           </motion.div>
         ))}
+
+        {selectedProfile && (
+          <ProfilePopup
+            user={selectedProfile}
+            onClose={() => setSelectedProfile(null)}
+          />
+        )}
       </div>
     </section>
   );
