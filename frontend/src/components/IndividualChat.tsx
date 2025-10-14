@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { FiPhone, FiSend, FiVideo } from "react-icons/fi";
+import type { Chat } from "../pages/ChatPage";
 
-export const IndividualChat = () => {
+type Props = {
+  chat: Chat;
+  onBack?: () => void; // optional
+};
+
+export const IndividualChat = ({ chat, onBack }: Props) => {
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -41,11 +47,19 @@ export const IndividualChat = () => {
   };
 
   return (
-    <section className="hidden md:flex flex-col flex-1 bg-background text-[#E4E6EB] w-full h-screen">
+    <section className="flex flex-col flex-1 bg-background text-[#E4E6EB] w-full h-screen">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#27272A]">
         {/* Left: Avatar + Name */}
         <div className="flex items-center gap-3">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="md:hidden p-2 rounded hover:bg-[#2A2A35]"
+            >
+              Back
+            </button>
+          )}
           <img
             src="https://randomuser.me/api/portraits/women/12.jpg"
             alt="Avatar"

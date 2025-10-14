@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { FiSearch } from "react-icons/fi";
+import type { Chat } from "../pages/ChatPage";
 
 // Dummy data
 const chatData = [
@@ -40,7 +41,11 @@ const chatData = [
   },
 ];
 
-export const ChatsList = () => {
+type Props = {
+  onSelectChat: (chat: Chat) => void;
+};
+
+export const ChatsList = ({ onSelectChat }: Props) => {
   const [search, setSearch] = useState("");
 
   const filteredChats = chatData.filter((chat) =>
@@ -73,6 +78,7 @@ export const ChatsList = () => {
             key={chat.id}
             whileHover={{ scale: 1.02 }}
             className="flex items-center justify-between p-3 mx-2 my-1 rounded-xl hover:bg-[#22222A] cursor-pointer transition-all"
+            onClick={() => onSelectChat(chat)}
           >
             {/* Left section */}
             <div className="flex items-center gap-3">
