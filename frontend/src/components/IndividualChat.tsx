@@ -41,10 +41,11 @@ export const IndividualChat = () => {
   };
 
   return (
-    <section className="flex flex-col flex-1 bg-background text-[#E4E6EB] w-full h-screen">
+    <section className="hidden md:flex flex-col flex-1 bg-background text-[#E4E6EB] w-full h-screen">
       {/* Header */}
-      <div className="flex justify-between">
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-[#27272A]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[#27272A]">
+        {/* Left: Avatar + Name */}
+        <div className="flex items-center gap-3">
           <img
             src="https://randomuser.me/api/portraits/women/12.jpg"
             alt="Avatar"

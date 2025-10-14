@@ -92,7 +92,7 @@ export const ChatsList = () => {
             {/* Right section (Time + Unread badge) */}
             <div className="flex flex-col items-end justify-between h-12">
               <span className="text-xs text-gray-400">{chat.time}</span>
-              {chat.unread > 0 && (
+              {chat.unread && chat.unread > 0 && (
                 <div className="bg-[#A2A970] text-[#11111b] text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mt-1">
                   {chat.unread}
                 </div>
