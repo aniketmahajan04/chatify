@@ -1,12 +1,12 @@
+import { ChatsList } from "../components/ChatList";
 import { SideBar } from "../components/SideBar";
 
 export const ChatPage = () => {
   return (
     <>
-      <div>
-        <div>
-          <SideBar />
-        </div>
+      <div className="flex ">
+        <SideBar />
+        <ChatsList />
       </div>
     </>
   );
