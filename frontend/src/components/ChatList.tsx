@@ -67,32 +67,67 @@ export const ChatsList = () => {
       </div>
 
       {/* Chat List */}
+      {/* <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-[#27272A] scrollbar-track-transparent"> */}
+      {filteredChats.map((chat) => (
+        <motion.div
+          key={chat.id}
+          whileHover={{ scale: 1.02 }}
+          className="flex items-center gap-3 p-3 mx-2 my-1 rounded-xl hover:bg-[#22222A] cursor-pointer transition-all"
+        >
+          <img
+            src={chat.avatar}
+            alt={chat.name}
+            className="w-12 h-12 rounded-full border border-[#27272A]"
+          />
+          <div className="flex-1">
+            <div className="flex justify-between">
+              <h3 className="font-medium text-[#E4E6EB]">{chat.name}</h3>
+              {/* <div className="right-0"> */}
+              <span className="text-xs text-gray-400 right-0">{chat.time}</span>
+              {/* </div> */}
+            </div>
+            <p className="text-sm text-gray-400 truncate">{chat.lastMessage}</p>
+          </div>
+          {chat.unread > 0 && (
+            <div className="bg-[#A2A970] text-[#11111b] text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              {chat.unread}
+            </div>
+          )}
+        </motion.div>
+      ))}
+      {/* </div> */}
+      {/* Chat List */}
       <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-[#27272A] scrollbar-track-transparent">
         {filteredChats.map((chat) => (
           <motion.div
             key={chat.id}
             whileHover={{ scale: 1.02 }}
-            className="flex items-center gap-3 p-3 mx-2 my-1 rounded-xl hover:bg-[#22222A] cursor-pointer transition-all"
+            className="flex items-center justify-between p-3 mx-2 my-1 rounded-xl hover:bg-[#22222A] cursor-pointer transition-all"
           >
-            <img
-              src={chat.avatar}
-              alt={chat.name}
-              className="w-12 h-12 rounded-full border border-[#27272A]"
-            />
-            <div className="flex-1">
-              <div className="flex justify-between">
+            {/* Left section */}
+            <div className="flex items-center gap-3">
+              <img
+                src={chat.avatar}
+                alt={chat.name}
+                className="w-12 h-12 rounded-full border border-[#27272A]"
+              />
+              <div>
                 <h3 className="font-medium text-[#E4E6EB]">{chat.name}</h3>
-                <span className="text-xs text-gray-400">{chat.time}</span>
+                <p className="text-sm text-gray-400 truncate w-[140px] md:w-[180px]">
+                  {chat.lastMessage}
+                </p>
               </div>
-              <p className="text-sm text-gray-400 truncate">
-                {chat.lastMessage}
-              </p>
             </div>
-            {chat.unread > 0 && (
-              <div className="bg-[#A2A970] text-[#11111b] text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                {chat.unread}
-              </div>
-            )}
+
+            {/* Right section (Time + Unread badge) */}
+            <div className="flex flex-col items-end justify-between h-12">
+              <span className="text-xs text-gray-400">{chat.time}</span>
+              {chat.unread > 0 && (
+                <div className="bg-[#A2A970] text-[#11111b] text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mt-1">
+                  {chat.unread}
+                </div>
+              )}
+            </div>
           </motion.div>
         ))}
       </div>
