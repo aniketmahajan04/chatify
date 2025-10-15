@@ -5,9 +5,14 @@ import { PiChatsCircle } from "react-icons/pi";
 type Props = {
   activeMenu: number;
   onMenuChange: (menuId: number) => void;
+  onSettingsClick: () => void;
 };
 
-export const SideBar = ({ activeMenu, onMenuChange }: Props) => {
+export const SideBar = ({
+  activeMenu,
+  onMenuChange,
+  onSettingsClick,
+}: Props) => {
   const menu = [
     { id: 1, icon: <PiChatsCircle />, label: "Chats" },
     { id: 2, icon: <AiOutlinePhone />, label: "Calls" },
@@ -57,7 +62,7 @@ export const SideBar = ({ activeMenu, onMenuChange }: Props) => {
         <div className="flex flex-col items-center gap-6 mt-auto mb-4">
           <button
             title="Settings"
-            onClick={() => onMenuChange(3)}
+            onClick={onSettingsClick}
             className="text-2xl hover:text-[#A2A970] transition-colors duration-200"
           >
             <AiOutlineSetting />
@@ -96,7 +101,7 @@ export const SideBar = ({ activeMenu, onMenuChange }: Props) => {
         ))}
         <button
           title="Settings"
-          onClick={() => onMenuChange(3)}
+          onClick={onSettingsClick}
           className="text-2xl text-[#E4E6EB] hover:text-[#A2A970] transition-colors duration-200"
         >
           <AiOutlineSetting />

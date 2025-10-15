@@ -28,7 +28,11 @@ export const ChatPage = () => {
   return (
     <div className="flex h-screen relative overflow-hidden">
       {/* Sidebar */}
-      <SideBar activeMenu={activeMenu} onMenuChange={handleMenuChange} />
+      <SideBar
+        activeMenu={activeMenu}
+        onMenuChange={handleMenuChange}
+        onSettingsClick={() => setIsSettingsOpen(true)}
+      />
 
       {/* ✅ Desktop layout */}
       <div className="hidden md:flex flex-1">
@@ -88,15 +92,25 @@ export const ChatPage = () => {
           </div>
         )}
 
-        {isSettingsOpen && (
-          <div className="flex-1">
-            <Settings
-              onLogout={() => console.log("Logged out")}
-              onClose={() => setIsSettingsOpen(false)}
-            />
-          </div>
-        )}
+        <div className="flex flex-1 md:hidden">
+          {isSettingsOpen && (
+            <div className="flex-1 flex h-screen relative overflow-hidden ">
+              <Settings
+                onLogout={() => console.log("Logged out")}
+                onClose={() => setIsSettingsOpen(false)}
+              />
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Settings */}
+      {isSettingsOpen && (
+        <Settings
+          onClose={() => setIsSettingsOpen(false)}
+          onLogout={() => console.log("Logged out")}
+        />
+      )}
 
       {/* ✅ Profile Panel */}
       <ProfilePanel
