@@ -6,9 +6,10 @@ import type { Chat } from "../pages/ChatPage";
 type Props = {
   chat: Chat;
   onBack?: () => void; // optional
+  onOpenProfile?: () => void;
 };
 
-export const IndividualChat = ({ chat, onBack }: Props) => {
+export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -61,15 +62,21 @@ export const IndividualChat = ({ chat, onBack }: Props) => {
               <IoIosArrowRoundBack />
             </button>
           )}
-          <img
-            src={chat.avatar}
-            alt="Avatar"
-            className="w-10 h-10 rounded-full border border-[#27272A]"
-          />
-          <div>
-            <h2 className="font-medium text-[#E4E6EB]">{chat.name}</h2>
-            <p className="text-xs text-gray-400">online</p>
-          </div>
+
+          <button
+            onClick={onOpenProfile}
+            className="flex items-center gap-3 hover:bg-[#2A2A35] p-1 rounded-lg transition"
+          >
+            <img
+              src={chat.avatar}
+              alt="Avatar"
+              className="w-10 h-10 rounded-full border border-[#27272A]"
+            />
+            <div>
+              <h2 className="font-medium text-[#E4E6EB]">{chat.name}</h2>
+              <p className="text-xs text-gray-400">online</p>
+            </div>
+          </button>
         </div>
 
         {/* Right: Call & Video Call */}
