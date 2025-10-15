@@ -91,7 +91,7 @@ export const ChatPage = () => {
             </div>
           </div>
         )}
-
+        {/* 
         <div className="flex flex-1 md:hidden">
           {isSettingsOpen && (
             <div className="flex-1 flex h-screen relative overflow-hidden ">
@@ -101,7 +101,7 @@ export const ChatPage = () => {
               />
             </div>
           )}
-        </div>
+        </div> */}
       </div>
 
       {/* Settings */}
