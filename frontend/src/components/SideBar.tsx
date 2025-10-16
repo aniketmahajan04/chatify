@@ -6,12 +6,13 @@ type Props = {
   activeMenu: number;
   onMenuChange: (menuId: number) => void;
   onSettingsClick: () => void;
+  onMyProfileClick: () => void;
 };
 
 export const SideBar = ({
   activeMenu,
   onMenuChange,
-  onSettingsClick,
+  onSettingsClick, onMyProfileClick
 }: Props) => {
   const menu = [
     { id: 1, icon: <PiChatsCircle />, label: "Chats" },
@@ -67,11 +68,17 @@ export const SideBar = ({
           >
             <AiOutlineSetting />
           </button>
+            <button
+                title="Profile"
+                onClick={onMyProfileClick}
+            >
+
           <img
             src="https://randomuser.me/api/portraits/men/75.jpg"
             alt="User Avatar"
             className="w-10 h-10 rounded-full border border-[#27272A] hover:border-[#A2A970] transition-all"
           />
+            </button>
         </div>
       </div>
 
