@@ -33,10 +33,13 @@ export const MyProfile = ({ onClose, user, onUpdate }: Props) => {
 
   return (
     <motion.div
-      initial={{ x: "100%" }}
-      animate={{ x: 0 }}
-      exit={{ x: "100%" }}
-      transition={{ type: "spring", stiffness: 80, damping: 20 }}
+      // initial={{ x: "100%" }}
+      // animate={{ x: 0 }}
+      // exit={{ x: "100%" }}
+      // transition={{ type: "spring", stiffness: 80, damping: 20 }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.1 }}
       className="fixed md:absolute top-0 right-0 h-screen w-full md:w-[400px] bg-[#1A1A24] text-[#E4E6EB] border-l border-[#27272A] shadow-lg z-50 flex flex-col"
     >
       {/* Header */}
