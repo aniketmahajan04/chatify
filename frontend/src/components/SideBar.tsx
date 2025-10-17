@@ -12,7 +12,8 @@ type Props = {
 export const SideBar = ({
   activeMenu,
   onMenuChange,
-  onSettingsClick, onMyProfileClick
+  onSettingsClick,
+  onMyProfileClick,
 }: Props) => {
   const menu = [
     { id: 1, icon: <PiChatsCircle />, label: "Chats" },
@@ -20,7 +21,10 @@ export const SideBar = ({
   ];
 
   return (
-    <aside className="flex md:flex-col justify-between items-center md:bg-[#202020] text-[#E4E6EB] md:w-20 w-full md:h-screen h-16 p-2 md:p-0 fixed md:static bottom-0 left-0 z-50">
+    <aside
+      className="flex md:flex-col justify-between items-center md:bg-[#202020] 
+    text-[#E4E6EB] md:w-20 w-full md:h-screen h-16 p-2 md:p-0 fixed md:static bottom-0 left-0 z-50"
+    >
       {/* ===== Desktop Sidebar ===== */}
       <div className="hidden md:flex flex-col justify-between h-full items-center py-4">
         {/* Logo */}
@@ -50,7 +54,8 @@ export const SideBar = ({
               {activeMenu === item.id && (
                 <motion.div
                   layoutId="activeIndicator"
-                  className="absolute -left-6 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#A2A970] rounded-r-full"
+                  className="absolute -left-6 top-1/2 -translate-y-1/2 w-1 h-8
+                   bg-[#A2A970] rounded-r-full"
                   initial={false}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
@@ -68,22 +73,23 @@ export const SideBar = ({
           >
             <AiOutlineSetting />
           </button>
-            <button
-                title="Profile"
-                onClick={onMyProfileClick}
-            >
-
-          <img
-            src="https://randomuser.me/api/portraits/men/75.jpg"
-            alt="User Avatar"
-            className="w-10 h-10 rounded-full border border-[#27272A] hover:border-[#A2A970] transition-all"
-          />
-            </button>
+          <button title="Profile" onClick={onMyProfileClick}>
+            <img
+              src="https://randomuser.me/api/portraits/men/75.jpg"
+              alt="User Avatar"
+              className="w-10 h-10 rounded-full border border-[#27272A] 
+              hover:border-[#A2A970] transition-all"
+            />
+          </button>
         </div>
       </div>
 
       {/* ===== Mobile Bottom Navigation ===== */}
-      <div className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 bg-[#1A1A24]/90 backdrop-blur-md w-[90%] max-w-sm rounded-full flex justify-around items-center py-3 px-4 shadow-lg border border-[#2A2A35]">
+      <div
+        className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 
+      bg-[#1A1A24]/90 backdrop-blur-md w-[90%] max-w-sm rounded-full flex justify-around 
+      items-center py-3 px-4 shadow-lg border border-[#2A2A35]"
+      >
         {menu.map((item) => (
           <button
             key={item.id}
@@ -99,7 +105,8 @@ export const SideBar = ({
             {activeMenu === item.id && (
               <motion.div
                 layoutId="mobileActiveIndicator"
-                className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#A2A970] rounded-full"
+                className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1
+                 bg-[#A2A970] rounded-full"
                 initial={false}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
               />
@@ -109,7 +116,8 @@ export const SideBar = ({
         <button
           title="Settings"
           onClick={onSettingsClick}
-          className="text-2xl text-[#E4E6EB] hover:text-[#A2A970] transition-colors duration-200"
+          className="text-2xl text-[#E4E6EB] hover:text-[#A2A970] 
+          transition-colors duration-200"
         >
           <AiOutlineSetting />
         </button>

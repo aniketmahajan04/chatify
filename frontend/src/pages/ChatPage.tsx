@@ -1,10 +1,11 @@
 import { useState } from "react";
+import { CallHistoryList } from "../components/CallHistoryList.tsx";
 import { ChatsList } from "../components/ChatList";
 import { IndividualChat } from "../components/IndividualChat";
+import { MyProfile } from "../components/MyProfile.tsx";
 import ProfilePanel from "../components/ProfilePanel";
 import { Settings } from "../components/Settings";
 import { SideBar } from "../components/SideBar";
-import {MyProfile} from "../components/MyProfile.tsx";
 
 export type Chat = {
   id: number;
@@ -22,12 +23,12 @@ export const ChatPage = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isMyProfileOpen, setIsMyProfileOpen] = useState(false);
 
-    const [user, setUser] = useState({
-        name: "John Doe",
-        email: "john.doe@example.com",
-        bio: "Hey there! I'm using Chatify 🚀",
-        avatar: "https://randomuser.me/api/portraits/men/75.jpg",
-    });
+  const [user, setUser] = useState({
+    name: "John Doe",
+    email: "john.doe@example.com",
+    bio: "Hey there! I'm using Chatify 🚀",
+    avatar: "https://randomuser.me/api/portraits/men/75.jpg",
+  });
 
   const handleMenuChange = (menuId: number) => {
     setActiveMenu(menuId);
@@ -69,10 +70,11 @@ export const ChatPage = () => {
 
         {activeMenu === 2 && (
           <div className="flex-1 flex items-center justify-center text-gray-400">
-            <div className="text-center">
+            {/* <div className="text-center">
               <p className="text-2xl mb-2">📞</p>
               <p>Calls feature coming soon</p>
-            </div>
+            </div> */}
+            <CallHistoryList />
           </div>
         )}
       </div>
@@ -94,11 +96,8 @@ export const ChatPage = () => {
         )}
 
         {activeMenu === 2 && (
-          <div className="flex-1 flex items-center justify-center text-gray-400">
-            <div className="text-center">
-              <p className="text-2xl mb-2">📞</p>
-              <p>Calls feature coming soon</p>
-            </div>
+          <div className="flex flex-1 items-center justify-center text-gray-400">
+            <CallHistoryList />
           </div>
         )}
         {/* 
@@ -116,12 +115,12 @@ export const ChatPage = () => {
 
       {/* Settings */}
       {isSettingsOpen && (
-          <div className="absolute inset-0 z-50 bg-black/40">
-        <Settings
-          onClose={() => setIsSettingsOpen(false)}
-          onLogout={() => console.log("Logged out")}
-        />
-              </div>
+        <div className="absolute inset-0 z-50 bg-black/40">
+          <Settings
+            onClose={() => setIsSettingsOpen(false)}
+            onLogout={() => console.log("Logged out")}
+          />
+        </div>
       )}
 
       {/* ✅ Profile Panel */}
@@ -130,14 +129,14 @@ export const ChatPage = () => {
         onClose={() => setIsProfileOpen(false)}
       />
 
-        {/* ✅ My Profile Panel (for logged-in user) */}
-        {isMyProfileOpen && (
-            <MyProfile
-                onClose={() => setIsMyProfileOpen(false)}
-                user={user}
-                onUpdate={(updatedUser) => setUser(updatedUser)}
-            />
-        )}
+      {/* ✅ My Profile Panel (for logged-in user) */}
+      {isMyProfileOpen && (
+        <MyProfile
+          onClose={() => setIsMyProfileOpen(false)}
+          user={user}
+          onUpdate={(updatedUser) => setUser(updatedUser)}
+        />
+      )}
     </div>
   );
 };
