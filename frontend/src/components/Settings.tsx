@@ -18,6 +18,16 @@ export const Settings = ({ onClose, onLogout }: Props) => {
     avatar: "https://randomuser.me/api/portraits/men/75.jpg",
   });
 
+  if (showProfile) {
+    return (
+      <MyProfile
+        user={user}
+        onClose={() => setShowProfile(false)}
+        onUpdate={(updatedUser) => setUser(updatedUser)}
+      />
+    );
+  }
+
   return (
     <motion.div
       // initial={{ x: "100%" }}
@@ -106,13 +116,13 @@ export const Settings = ({ onClose, onLogout }: Props) => {
         </button>
       </div>
 
-      {showProfile && (
+      {/* {showProfile && (
         <MyProfile
           onClose={() => setShowProfile(false)}
           user={user}
           onUpdate={(updatedUser) => setUser(updatedUser)}
         />
-      )}
+      )} */}
     </motion.div>
   );
 };

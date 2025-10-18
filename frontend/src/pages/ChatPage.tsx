@@ -74,7 +74,7 @@ export const ChatPage = () => {
               <p className="text-2xl mb-2">📞</p>
               <p>Calls feature coming soon</p>
             </div> */}
-            <CallHistoryList />
+            <CallHistoryList onBack={() => setActiveMenu(1)} />
           </div>
         )}
       </div>
@@ -97,7 +97,7 @@ export const ChatPage = () => {
 
         {activeMenu === 2 && (
           <div className="flex flex-1 items-center justify-center text-gray-400">
-            <CallHistoryList />
+            <CallHistoryList onBack={() => setActiveMenu(1)} />
           </div>
         )}
         {/* 
