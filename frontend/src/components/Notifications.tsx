@@ -27,7 +27,13 @@ export const Notifications = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-50 flex items-start justify-end md:items-start md:justify-end bg-black/40 md:bg-transparent"
+        onClick={onClose}
       >
+        {/* Transparent overlay only for mobile
+        <div
+          className="md:hidden absolute inset-0 bg-black/40"
+          onClick={onClose} // clicking outside closes modal
+        /> */}
         {/* ✅ Responsive container */}
         <motion.div
           initial={{ y: 50, opacity: 0 }}
@@ -35,15 +41,16 @@ export const Notifications = ({
           exit={{ y: 50, opacity: 0 }}
           transition={{ type: "spring", stiffness: 200, damping: 20 }}
           className="
-            w-full md:w-80 
-            h-full md:h-auto 
-            bg-[#18181B] 
-            text-white 
-            rounded-none md:rounded-2xl 
-            shadow-lg border border-zinc-700 
-            overflow-hidden 
+            w-full md:w-80
+            h-full md:h-auto
+            bg-[#18181B]
+            text-white
+            rounded-none md:rounded-2xl
+            shadow-lg border border-zinc-700
+            overflow-hidden
             flex flex-col
           "
+          onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div className="flex justify-between items-center px-4 py-3 border-b border-zinc-700">
