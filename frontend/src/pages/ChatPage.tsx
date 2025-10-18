@@ -3,6 +3,7 @@ import { CallHistoryList } from "../components/CallHistoryList.tsx";
 import { ChatsList } from "../components/ChatList";
 import { IndividualChat } from "../components/IndividualChat";
 import { MyProfile } from "../components/MyProfile.tsx";
+import { Notifications } from "../components/Notifications.tsx";
 import ProfilePanel from "../components/ProfilePanel";
 import { Settings } from "../components/Settings";
 import { SideBar } from "../components/SideBar";
@@ -22,6 +23,15 @@ export const ChatPage = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isMyProfileOpen, setIsMyProfileOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      sender: "Alice",
+      avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+      message: "wants to connect with you",
+    },
+  ]);
 
   const [user, setUser] = useState({
     name: "John Doe",
@@ -35,6 +45,16 @@ export const ChatPage = () => {
     setSelectedChat(null); // Reset selected chat when switching menus
   };
 
+  const handleAccept = (id: number) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    console.log("Accepted request", id);
+  };
+
+  const handleReject = (id: number) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    console.log("Rejected request", id);
+  };
+
   return (
     <div className="flex h-screen relative overflow-hidden">
       {/* Sidebar */}
@@ -43,6 +63,7 @@ export const ChatPage = () => {
         onMenuChange={handleMenuChange}
         onSettingsClick={() => setIsSettingsOpen(true)}
         onMyProfileClick={() => setIsMyProfileOpen(true)}
+        onNotificationsClick={() => setIsNotificationsOpen(true)}
       />
 
       {/* ✅ Desktop layout */}
@@ -76,6 +97,14 @@ export const ChatPage = () => {
             </div> */}
             <CallHistoryList onBack={() => setActiveMenu(1)} />
           </div>
+        )}
+        {isNotificationsOpen && (
+          <Notifications
+            notifications={notifications}
+            onAccept={handleAccept}
+            onReject={handleReject}
+            onClose={() => setIsNotificationsOpen(false)}
+          />
         )}
       </div>
 
@@ -137,6 +166,15 @@ export const ChatPage = () => {
           onUpdate={(updatedUser) => setUser(updatedUser)}
         />
       )}
+
+      {/* {isNotificationsOpen && (
+        <Notifications
+          notifications={notifications}
+          onAccept={handleAccept}
+          onReject={handleReject}
+          onClose={() => setIsNotificationsOpen(false)}
+        />
+      )} */}
     </div>
   );
 };

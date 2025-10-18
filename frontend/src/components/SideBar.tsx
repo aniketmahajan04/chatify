@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { AiOutlinePhone, AiOutlineSetting } from "react-icons/ai";
+import { IoIosNotificationsOutline } from "react-icons/io";
 import { PiChatsCircle } from "react-icons/pi";
 
 type Props = {
@@ -7,6 +8,7 @@ type Props = {
   onMenuChange: (menuId: number) => void;
   onSettingsClick: () => void;
   onMyProfileClick: () => void;
+  onNotificationsClick: () => void;
 };
 
 export const SideBar = ({
@@ -14,10 +16,12 @@ export const SideBar = ({
   onMenuChange,
   onSettingsClick,
   onMyProfileClick,
+  onNotificationsClick,
 }: Props) => {
   const menu = [
     { id: 1, icon: <PiChatsCircle />, label: "Chats" },
     { id: 2, icon: <AiOutlinePhone />, label: "Calls" },
+    { id: 3, icon: <IoIosNotificationsOutline />, label: "Notifications" },
   ];
 
   return (
@@ -43,7 +47,13 @@ export const SideBar = ({
             <button
               key={item.id}
               title={item.label}
-              onClick={() => onMenuChange(item.id)}
+              onClick={() => {
+                if (item.id === 3 && onNotificationsClick) {
+                  onNotificationsClick(); // open notifications
+                } else {
+                  onMenuChange(item.id); // switch menu
+                }
+              }}
               className={`text-2xl transition-colors duration-200 relative ${
                 activeMenu === item.id
                   ? "text-[#A2A970]"
@@ -94,7 +104,13 @@ export const SideBar = ({
           <button
             key={item.id}
             title={item.label}
-            onClick={() => onMenuChange(item.id)}
+            onClick={() => {
+              if (item.id === 3 && onNotificationsClick) {
+                onNotificationsClick();
+              } else {
+                onMenuChange(item.id);
+              }
+            }}
             className={`text-2xl transition-all duration-200 relative ${
               activeMenu === item.id
                 ? "text-[#A2A970] scale-110"
