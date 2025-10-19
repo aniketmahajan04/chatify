@@ -132,8 +132,9 @@ export const ChatsList = ({ onSelectChat }: Props) => {
 
                 {selectedChatAction && mousePos && (
                     <ActionModal
-                        isOpen={!selectedChatAction}
+                        isOpen={selectedChatAction}
                         title="Message Options"
+                        position={mousePos}
                         actions={[
                             {
                                 label: "Mark as Read",
@@ -149,6 +150,7 @@ export const ChatsList = ({ onSelectChat }: Props) => {
                                 label: "Delete",
                                 onClick: () =>
                                     console.log("Delete", selectedChatAction.id),
+                                destructive: true
                             },
                         ]}
                         onClose={() => setSelectedAction(null)}
