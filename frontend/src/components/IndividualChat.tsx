@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { FiPhone, FiSend, FiVideo } from "react-icons/fi";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import type { Chat } from "../pages/ChatPage";
+import { ActionModal } from "./ActionModel";
 
 type Props = {
   chat: Chat;
@@ -33,6 +34,12 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
 
   const [newMsg, setNewMsg] = useState("");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const [actionModelOpen, setActionModelOpen] = useState(false);
+  const [actionModelPosition, setActionModelPosition] = useState({
+    x: 0,
+    y: 0,
+  });
+  const [selectedMessage, setSelectedMessage] = useState<any | null>(null);
 
   // Scroll to bottom on new message
   useEffect(() => {
@@ -46,6 +53,13 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
       { id: Date.now(), text: newMsg, sender: "me", time: "Now" },
     ]);
     setNewMsg("");
+  };
+
+  const handleRightClick = (e: React.MouseEvent, message: any) => {
+    e.preventDefault();
+    setSelectedMessage(message);
+    setActionModelPosition({ x: e.clientX, y: e.clientY });
+    setActionModelOpen(true);
   };
 
   return (
@@ -95,6 +109,7 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
         {messages.map((msg) => (
           <div
             key={msg.id}
+            onContextMenu={(e) => handleRightClick(e, msg)}
             className={`flex ${
               msg.sender === "me" ? "justify-end" : "justify-start"
             }`}
@@ -132,6 +147,27 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
           <FiSend className="text-[#11111b] text-lg" />
         </button>
       </div>
+
+      <ActionModal
+        isOpen={actionModelOpen}
+        onClose={() => setActionModelOpen(false)}
+        position={actionModelPosition}
+        actions={[
+          {
+            label: "Read",
+            onClick: () => console.log("Read", selectedMessage?.id),
+          },
+          {
+            label: "Forward",
+            onClick: () => console.log("Forward", selectedMessage?.id),
+          },
+          {
+            label: "Delete",
+            onClick: () => console.log("Delete", selectedMessage?.id),
+            destructive: true,
+          },
+        ]}
+      />
     </section>
   );
 };

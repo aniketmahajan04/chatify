@@ -98,14 +98,6 @@ export const ChatPage = () => {
             <CallHistoryList onBack={() => setActiveMenu(1)} />
           </div>
         )}
-        {isNotificationsOpen && (
-          <Notifications
-            notifications={notifications}
-            onAccept={handleAccept}
-            onReject={handleReject}
-            onClose={() => setIsNotificationsOpen(false)}
-          />
-        )}
       </div>
 
       {/* ✅ Mobile layout */}
@@ -167,14 +159,15 @@ export const ChatPage = () => {
         />
       )}
 
-      {/* {isNotificationsOpen && (
+      {/* ✅ Notifications - Available on both desktop and mobile */}
+      {isNotificationsOpen && (
         <Notifications
           notifications={notifications}
           onAccept={handleAccept}
           onReject={handleReject}
           onClose={() => setIsNotificationsOpen(false)}
         />
-      )} */}
+      )}
     </div>
   );
 };
