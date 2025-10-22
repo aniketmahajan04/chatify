@@ -2,3 +2,5 @@
 node_modules
 dist
 .ghostts
+/src/generated/prisma
+.env
