@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 export const LoginPage = () => {
   const { signIn, isLoaded, setActive } = useSignIn();
+  const { getToken } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -29,20 +30,29 @@ export const LoginPage = () => {
       });
 
       if (result.status === "complete") {
-        // console.log("Login successful!");
-        // await fetch("http://localhost:3000/login", {
-        //   method: "POST",
-        //   headers: {
-        //     Authorization: `Bearer ${await getToken()}`,
-        //     "Content-Type": "application/json",
-        //   },
-        // });
-
-        // Set the active session
+        // Set the active session first
         await setActive({ session: result.createdSessionId });
 
+        // Sync user to backend database
+        try {
+          const response = await fetch("http://localhost:3000/login", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${await getToken()}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (response.ok) {
+            console.log("User synced to database successfully!");
+          } else {
+            console.error("Failed to sync user to database");
+          }
+        } catch (syncError) {
+          console.error("Error syncing user:", syncError);
+        }
+
         console.log("Login successful!");
-        // Navigate to home page (which will sync user to backend)
         navigate("/");
       }
     } catch (err: any) {

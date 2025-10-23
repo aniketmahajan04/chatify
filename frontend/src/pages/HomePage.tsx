@@ -151,7 +151,7 @@ export const HomePage = () => {
           className="flex-1"
         >
           <img
-            src="https://via.placeholder.com/400x400.png?text=Chat+UI"
+            src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZmlsbD0iIzY2NjY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkNoYXQgVUk8L3RleHQ+Cjwvc3ZnPg=="
             alt="Chatify app"
             className="rounded-3xl shadow-2xl border border-[#2A2A35] w-full"
           />

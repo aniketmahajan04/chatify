@@ -59,7 +59,10 @@ export const MyProfile = ({ onClose, user, onUpdate }: Props) => {
         <div className="flex flex-col items-center space-y-3">
           <div className="relative">
             <img
-              src={avatar || "https://via.placeholder.com/100"}
+              src={
+                avatar ||
+                "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI1MCIgZmlsbD0iIzY2NjY2NiIvPgogIDx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+PC90ZXh0Pgo8L3N2Zz4="
+              }
               alt="Avatar"
               className="w-24 h-24 rounded-full object-cover"
             />

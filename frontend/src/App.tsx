@@ -3,6 +3,7 @@ import { ChatPage } from "./pages/ChatPage";
 import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
 import { SignupPage } from "./pages/SignupPage";
+import { SSOCallbackPage } from "./pages/SSOCallbackPage";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           <Route path="/" element={<HomePage />}></Route>
           <Route path="/login" element={<LoginPage />}></Route>
           <Route path="/register" element={<SignupPage />}></Route>
+          <Route path="/sso-callback" element={<SSOCallbackPage />}></Route>
         </Routes>
       </BrowserRouter>
     </>

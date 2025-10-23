@@ -20,13 +20,24 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello from server");
 });
 
+app.get("/test", (req: Request, res: Response) => {
+  res.json({
+    message: "Backend is working!",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 app.post("/login", requireAuth(), async (req, res) => {
   try {
+    console.log("Login endpoint called");
     const { userId } = getAuth(req);
+    console.log("UserId from auth:", userId);
 
     if (!userId) return res.status(401).json({ msg: "Failed to get userId" });
 
+    console.log("Getting user from Clerk...");
     const clerkUser = await clerkClient.users.getUser(userId);
+    console.log("Clerk user:", clerkUser.emailAddresses[0].emailAddress);
 
     // const newUser = {
     //   id: user.id,
@@ -34,10 +45,13 @@ app.post("/login", requireAuth(), async (req, res) => {
     //   name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
     // };
 
+    console.log("Checking if user exists in database...");
     let existing = await prismaClient.user.findUnique({
       where: { id: clerkUser.id },
     });
+
     if (!existing) {
+      console.log("User not found, creating new user...");
       existing = await prismaClient.user.create({
         data: {
           id: clerkUser.id,
@@ -47,10 +61,12 @@ app.post("/login", requireAuth(), async (req, res) => {
           email: clerkUser.emailAddresses[0].emailAddress,
         },
       });
+      console.log("User created successfully:", existing.email);
     } else {
       console.log("User already exists in database:", existing.email);
     }
 
+    console.log("Sending response...");
     res.json({ success: true, user: existing });
   } catch (err: any) {
     console.error("Login/sync error:", err);
