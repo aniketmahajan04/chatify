@@ -1,6 +1,15 @@
 import { motion } from "framer-motion";
+import { useAuth, useUser } from "@clerk/clerk-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export const HomePage = () => {
+  const { isSignedIn, getToken } = useAuth();
+  const { user } = useUser();
+  const navigate = useNavigate();
+  const [syncing, setSyncing] = useState(false);
+
   const features = [
     {
       icon: "💬",
@@ -18,6 +27,48 @@ export const HomePage = () => {
       desc: "Never miss an important message or call.",
     },
   ];
+
+  useEffect(() => {
+    if (!isSignedIn || !user || syncing) return;
+
+    const syncUser = async () => {
+      setSyncing(true);
+      try {
+        const token = await getToken();
+
+        const response = await fetch("http://localhost:3000/login", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          // Redirect to chat page after syncing
+          navigate("/chat");
+        } else {
+          console.error("Failed to sync user");
+        }
+      } catch (err) {
+        console.error("Failed to sync user:", err);
+      }
+    };
+
+    syncUser();
+  }, [isSignedIn, user, getToken, navigate]);
+
+  // Show different content based on auth state
+  if (isSignedIn && syncing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0F0F11] text-white">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A2A970] mx-auto mb-4"></div>
+          <p className="text-gray-400">Setting up your account...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen flex flex-col bg-[#0F0F11] text-white overflow-hidden">
@@ -38,21 +89,30 @@ export const HomePage = () => {
       </div>
 
       {/* Header */}
-      <header className="flex justify-between items-center px-8 py-4 bg-[#202020]/90
-       backdrop-blur-md sticky top-0 z-50">
+      <header
+        className="flex justify-between items-center px-8 py-4 bg-[#202020]/90
+       backdrop-blur-md sticky top-0 z-50"
+      >
         <h1 className="text-2xl font-bold tracking-wide text-[#A2A970]">
           Chatify
         </h1>
         <div className="flex gap-4">
-          <button className="px-4 py-2 border border-[#A2A970] rounded hover:bg-[#A2A970] 
-          hover:text-black transition">
-            Login
-          </button>
-          <button className="px-4 py-2 bg-[#A2A970] rounded text-black font-semibold 
-          hover:bg-[#b2b97b] transition">
-
-            Sign Up
-          </button>
+          <Link to="/login">
+            <button
+              className="px-4 py-2 border border-[#A2A970] rounded hover:bg-[#A2A970] 
+            hover:text-black transition"
+            >
+              Login
+            </button>
+          </Link>
+          <Link to="/register">
+            <button
+              className="px-4 py-2 bg-[#A2A970] rounded text-black font-semibold 
+            hover:bg-[#b2b97b] transition"
+            >
+              Sign Up
+            </button>
+          </Link>
         </div>
       </header>
 
@@ -64,8 +124,10 @@ export const HomePage = () => {
           transition={{ duration: 1 }}
           className="flex-1 space-y-6"
         >
-          <h2 className="text-5xl md:text-6xl font-bold leading-tight bg-clip-text 
-          text-transparent bg-gradient-to-r from-[#A2A970] via-[#5AF1C1] to-[#F45A97] animate-gradient-text">
+          <h2
+            className="text-5xl md:text-6xl font-bold leading-tight bg-clip-text 
+          text-transparent bg-gradient-to-r from-[#A2A970] via-[#5AF1C1] to-[#F45A97] animate-gradient-text"
+          >
             Chat <span className="text-white/80">smarter</span>, not harder
           </h2>
           <p className="text-gray-400 text-lg md:text-xl">

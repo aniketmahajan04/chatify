@@ -5,18 +5,18 @@ import { LoginPage } from "./pages/LoginPage";
 import { SignupPage } from "./pages/SignupPage";
 
 function App() {
-    return (
-        <>
-            <BrowserRouter>
-                <Routes>
-                    <Route path="/" element={<ChatPage />}></Route>
-                    <Route path="/home" element={<HomePage />}></Route>
-                    <Route path="/login" element={<LoginPage />}></Route>
-                    <Route path="/register" element={<SignupPage />}></Route>
-                </Routes>
-            </BrowserRouter>
-        </>
-    );
+  return (
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/chat" element={<ChatPage />}></Route>
+          <Route path="/" element={<HomePage />}></Route>
+          <Route path="/login" element={<LoginPage />}></Route>
+          <Route path="/register" element={<SignupPage />}></Route>
+        </Routes>
+      </BrowserRouter>
+    </>
+  );
 }
 
 export default App;

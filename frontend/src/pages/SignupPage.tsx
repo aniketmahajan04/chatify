@@ -1,18 +1,65 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { useSignUp } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
 
 export const SignupPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { signUp, isLoaded, setActive } = useSignUp();
+  const navigate = useNavigate();
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Signing up:", { name, email, password });
+    setError("");
+    setLoading(true);
+
+    // console.log("Signing up:", { name, email, password });
+    if (!isLoaded) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const result = await signUp.create({
+        emailAddress: email,
+        password,
+        firstName: name,
+      });
+
+      if (result.status === "complete") {
+        // console.log("Registered in clerk");
+
+        // await fetch("http://localhost:3000/register", {
+        //   method: "POST",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //   },
+        //   body: JSON.stringify({ name, email, password }),
+        // });
+
+        await setActive({ session: result.createdSessionId });
+
+        console.log("Signup successful, redirecting...");
+        // Navigate to home page (which will sync user to backend)
+        navigate("/");
+      } else if (result.status === "missing_requirements") {
+        setError("Please check your email to verify your account.");
+      }
+    } catch (err: any) {
+      console.error("Signup failed:", err);
+      setError(err.errors?.[0]?.message || "Signup failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0F0F11] text-white px-4">
+      <div id="clerk-captcha"></div>
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
@@ -53,6 +100,7 @@ export const SignupPage = () => {
             whileTap={{ scale: 0.95 }}
             className="w-full py-3 mt-2 bg-[#A2A970] rounded-xl font-semibold text-black hover:bg-green-600 transition"
             type="submit"
+            disabled={!isLoaded || loading}
           >
             Sign Up
           </motion.button>
