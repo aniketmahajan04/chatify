@@ -1,13 +1,54 @@
+import { useSignIn, useAuth } from "@clerk/clerk-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 
 export const LoginPage = () => {
+  const { signIn, isLoaded } = useSignIn();
+  const { getToken } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Logging in:", { email, password });
+    if (!isLoaded) return;
+
+    try {
+      //Start the email/password sign-in
+      const attempt = await signIn.create({
+        identifier: email,
+        password,
+      });
+
+      if (attempt.status === "complete") {
+        console.log("Login successful!");
+        await fetch("http://localhost:3000/sync-user", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${await getToken()}`,
+            "Content-Type": "application/json",
+          },
+        });
+      }
+    } catch (err) {
+      console.error("Login failed", err);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    if (!isLoaded) {
+      return;
+    }
+
+    try {
+      await signIn.authenticateWithRedirect({
+        strategy: "oauth_google",
+        redirectUrl: "/",
+        redirectUrlComplete: "/",
+      });
+      console.log("Redirecting to google login");
+    } catch (err) {
+      console.error("Google login failed:", err);
+    }
   };
 
   return (
@@ -48,6 +89,15 @@ export const LoginPage = () => {
             Login
           </motion.button>
         </form>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="w-full py-3 mt-4 bg-[#4285F4] rounded-xl font-semibold text-white hover:bg-blue-600 transition flex items-center justify-center gap-2"
+          onClick={handleGoogleLogin}
+        >
+          <img src="/google-logo.png" className="w-5 h-5" alt="Google" />
+          Continue with Google
+        </motion.button>
 
         <p className="text-center text-gray-400 mt-6">
           Don't have an account?{" "}
