@@ -83,12 +83,14 @@ export const LoginPage = () => {
       await signIn.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: "/sso-callback",
-        redirectUrlComplete: "/",
+        redirectUrlComplete: "/sso-callback",
       });
       console.log("Redirecting to google login");
     } catch (err: any) {
       console.error("Google login failed:", err);
-      setError("Google login failed. Please try again.");
+      setError(
+        err.errors?.[0]?.message || "Google login failed. Please try again."
+      );
     }
   };
 
