@@ -35,25 +35,33 @@ export const LoginPage = () => {
 
         // Sync user to backend database
         try {
+          const token = await getToken();
           const response = await fetch("http://localhost:3000/login", {
             method: "POST",
             headers: {
-              Authorization: `Bearer ${await getToken()}`,
+              Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
           });
 
           if (response.ok) {
             console.log("User synced to database successfully!");
+            navigate("/chat");
           } else {
-            console.error("Failed to sync user to database");
+            const errorData = await response.json();
+            console.error("Failed to sync user to database:", errorData);
+            navigate("/chat");
           }
         } catch (syncError) {
           console.error("Error syncing user:", syncError);
+          navigate("/chat");
         }
 
-        console.log("Login successful!");
-        navigate("/");
+        // console.log("Login successful!");
+        // navigate("/");
+      } else {
+        console.log("Sign in status:", result.status);
+        setError("Sign in incomplete. Please try again.");
       }
     } catch (err: any) {
       console.error("Login failed", err);

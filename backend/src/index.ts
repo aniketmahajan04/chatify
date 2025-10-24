@@ -27,17 +27,39 @@ app.get("/test", (req: Request, res: Response) => {
   });
 });
 
+// Test database connection
+app.get("/test-db", async (req: Request, res: Response) => {
+  try {
+    const users = await prismaClient.user.findMany();
+    res.json({
+      success: true,
+      count: users.length,
+      users: users.map((u) => ({ id: u.id, email: u.email, name: u.name })),
+    });
+  } catch (err: any) {
+    console.error("Database test error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.post("/login", requireAuth(), async (req, res) => {
   try {
     console.log("Login endpoint called");
     const { userId } = getAuth(req);
     console.log("UserId from auth:", userId);
 
-    if (!userId) return res.status(401).json({ msg: "Failed to get userId" });
-
+    if (!userId) {
+      return res.status(401).json({ msg: "Failed to get userId" });
+    }
     console.log("Getting user from Clerk...");
     const clerkUser = await clerkClient.users.getUser(userId);
-    console.log("Clerk user:", clerkUser.emailAddresses[0].emailAddress);
+    console.log("Clerk user details:", {
+      id: clerkUser.id,
+      email: clerkUser.emailAddresses[0]?.emailAddress,
+      firstName: clerkUser.firstName,
+      lastName: clerkUser.lastName,
+      createdAt: clerkUser.createdAt,
+    });
 
     // const newUser = {
     //   id: user.id,
@@ -45,23 +67,48 @@ app.post("/login", requireAuth(), async (req, res) => {
     //   name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
     // };
 
+    const userEmail = clerkUser.emailAddresses[0]?.emailAddress;
+    const userName =
+      `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim() ||
+      "User";
+
+    if (!userEmail) {
+      console.error("No email found for user");
+      return res.status(400).json({
+        success: false,
+        message: "User email not found",
+      });
+    }
+
     console.log("Checking if user exists in database...");
     let existing = await prismaClient.user.findUnique({
-      where: { id: clerkUser.id },
+      where: { clerkId: clerkUser.id },
     });
 
     if (!existing) {
       console.log("User not found, creating new user...");
-      existing = await prismaClient.user.create({
-        data: {
-          id: clerkUser.id,
-          name: `${clerkUser.firstName || ""} ${
-            clerkUser.lastName || ""
-          }`.trim(),
-          email: clerkUser.emailAddresses[0].emailAddress,
-        },
-      });
-      console.log("User created successfully:", existing.email);
+      try {
+        existing = await prismaClient.user.create({
+          data: {
+            clerkId: clerkUser.id,
+            name: userName,
+            email: userEmail,
+          },
+        });
+        console.log("User created successfully:", existing.email);
+      } catch (createError: any) {
+        console.error("Error creating user:", createError);
+
+        // Check if it's a unique constraint error (user might have been created by another request)
+        if (createError.code === "P2002") {
+          console.log("User was created by another request, fetching...");
+          existing = await prismaClient.user.findUnique({
+            where: { clerkId: clerkUser.id },
+          });
+        } else {
+          throw createError;
+        }
+      }
     } else {
       console.log("User already exists in database:", existing.email);
     }
@@ -84,7 +131,7 @@ app.get("/me", requireAuth(), async (req, res) => {
     }
 
     const user = await prismaClient.user.findUnique({
-      where: { id: userId },
+      where: { clerkId: userId },
     });
 
     if (!user) {
@@ -98,6 +145,15 @@ app.get("/me", requireAuth(), async (req, res) => {
     console.error("Get user error:", err);
     res.status(500).json({ success: false, message: err.message });
   }
+});
+
+app.use((err: any, req: Request, res: Response, next: any) => {
+  console.error("Unhandled error:", err);
+  res.status(500).json({
+    success: false,
+    message: "Internal server error",
+    error: process.env.NODE_ENV === "development" ? err.message : undefined,
+  });
 });
 
 app.listen(PORT, () => {
