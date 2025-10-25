@@ -198,23 +198,27 @@ export const ChatPage = () => {
       )}
 
       {/* User List drawer */}
-      <UserListDrawer
-        isOpen={isUserListOpen}
-        users={dummyUsers}
-        onClose={() => setIsUserListOpen(false)}
-        onUserSelect={(user) => {
-          setSelectedUser(user);
-          setIsUserListOpen(false);
-          setIsUserProfileOpen(true);
-        }}
-      />
+      {isUserListOpen && (
+        <UserListDrawer
+          isOpen={isUserListOpen}
+          users={dummyUsers}
+          onClose={() => setIsUserListOpen(false)}
+          onUserSelect={(user) => {
+            setSelectedUser(user);
+            setIsUserListOpen(false);
+            setIsUserProfileOpen(true);
+          }}
+        />
+      )}
 
       {/* User Profile Drawer */}
-      <UserProfileDrawer
-        isOpen={isUserProfileOpen}
-        user={selectedUser}
-        onClose={() => setIsUserProfileOpen(false)}
-      />
+      {isUserProfileOpen && selectedUser && (
+        <UserProfileDrawer
+          isOpen={isUserProfileOpen}
+          user={selectedUser}
+          onClose={() => setIsUserProfileOpen(false)}
+        />
+      )}
     </div>
   );
 };
