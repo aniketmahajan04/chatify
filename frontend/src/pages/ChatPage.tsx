@@ -18,18 +18,24 @@ export type Chat = {
   time: string;
   unread: number;
 };
-const users = [
+const dummyUsers = [
   {
-    id: "1",
-    name: "Alice",
-    email: "alice@mail.com",
-    avatar: "https://randomuser.me/api/portraits/women/68.jpg",
+    id: 1,
+    name: "Emma Watson",
+    avatar: "https://randomuser.me/api/portraits/women/12.jpg",
+    bio: "Frontend Dev",
   },
   {
-    id: "2",
-    name: "Bob",
-    email: "bob@mail.com",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+    id: 2,
+    name: "John Doe",
+    avatar: "https://randomuser.me/api/portraits/men/14.jpg",
+    bio: "Backend Engineer",
+  },
+  {
+    id: 3,
+    name: "Ava Smith",
+    avatar: "https://randomuser.me/api/portraits/women/21.jpg",
+    bio: "UI/UX Designer",
   },
 ];
 
@@ -194,7 +200,7 @@ export const ChatPage = () => {
       {/* User List drawer */}
       <UserListDrawer
         isOpen={isUserListOpen}
-        users={users}
+        users={dummyUsers}
         onClose={() => setIsUserListOpen(false)}
         onUserSelect={(user) => {
           setSelectedUser(user);
