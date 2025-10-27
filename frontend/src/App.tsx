@@ -6,19 +6,22 @@ import { SignupPage } from "./pages/SignupPage";
 import { SSOCallbackPage } from "./pages/SSOCallbackPage";
 
 function App() {
-  return (
-    <>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/chat" element={<ChatPage />}></Route>
-          <Route path="/" element={<HomePage />}></Route>
-          <Route path="/login" element={<LoginPage />}></Route>
-          <Route path="/register" element={<SignupPage />}></Route>
-          <Route path="/sso-callback" element={<SSOCallbackPage />}></Route>
-        </Routes>
-      </BrowserRouter>
-    </>
-  );
+    return (
+        <>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/chat" element={<ChatPage />}></Route>
+                    <Route path="/" element={<HomePage />}></Route>
+                    <Route path="/login" element={<LoginPage />}></Route>
+                    <Route path="/register" element={<SignupPage />}></Route>
+                    <Route
+                        path="/sso-callback"
+                        element={<SSOCallbackPage />}
+                    ></Route>
+                </Routes>
+            </BrowserRouter>
+        </>
+    );
 }
 
 export default App;
