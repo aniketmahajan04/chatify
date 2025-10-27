@@ -122,10 +122,6 @@ export const ChatPage = () => {
 
         {activeMenu === 2 && (
           <div className="flex-1 flex items-center justify-center text-gray-400">
-            {/* <div className="text-center">
-              <p className="text-2xl mb-2">📞</p>
-              <p>Calls feature coming soon</p>
-            </div> */}
             <CallHistoryList onBack={() => setActiveMenu(1)} />
           </div>
         )}
@@ -156,17 +152,6 @@ export const ChatPage = () => {
             <CallHistoryList onBack={() => setActiveMenu(1)} />
           </div>
         )}
-        {/*
-        <div className="flex flex-1 md:hidden">
-          {isSettingsOpen && (
-            <div className="flex-1 flex h-screen relative overflow-hidden ">
-              <Settings
-                onLogout={() => console.log("Logged out")}
-                onClose={() => setIsSettingsOpen(false)}
-              />
-            </div>
-          )}
-        </div> */}
       </div>
 
       {/* Settings */}
