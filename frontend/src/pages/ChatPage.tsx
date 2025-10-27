@@ -9,6 +9,7 @@ import { Settings } from "../components/Settings";
 import { SideBar } from "../components/SideBar";
 import { UserListDrawer } from "../components/UserListDrawer.tsx";
 import { UserProfileDrawer } from "../components/userProfileDrawer.tsx";
+import { CreateGroupDrawer } from "../components/CreateGroupDrawer.tsx";
 
 export type Chat = {
   id: number;
@@ -57,6 +58,7 @@ export const ChatPage = () => {
   const [isUserListOpen, setIsUserListOpen] = useState(false);
   const [isUserProfileOpen, setIsUserProfileOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [isGroupDrawerOpen, setIsGroupDrawerOpen] = useState(false);
 
   const [user, setUser] = useState({
     name: "John Doe",
@@ -99,6 +101,7 @@ export const ChatPage = () => {
               <ChatsList
                 onSelectChat={(chat) => setSelectedChat(chat)}
                 onCreateChat={() => setIsUserListOpen(true)}
+                onCreateGroup={() => setIsGroupDrawerOpen(true)}
               />
             </div>
 
@@ -136,6 +139,7 @@ export const ChatPage = () => {
               <ChatsList
                 onSelectChat={(chat) => setSelectedChat(chat)}
                 onCreateChat={() => setIsUserListOpen(true)} // this is setting create chat option true
+                onCreateGroup={() => setIsGroupDrawerOpen(true)}
               />
             ) : (
               <IndividualChat
@@ -220,6 +224,16 @@ export const ChatPage = () => {
           isOpen={isUserProfileOpen}
           user={selectedUser}
           onClose={() => setIsUserProfileOpen(false)}
+        />
+      )}
+
+      {/* Group Create Drawer  */}
+      {isGroupDrawerOpen && (
+        <CreateGroupDrawer
+          isOpen={isGroupDrawerOpen}
+          onClose={() => setIsGroupDrawerOpen(false)}
+          onCreate={(group) => console.log("new group", group)}
+          users={dummyUsers}
         />
       )}
     </div>
