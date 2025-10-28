@@ -5,8 +5,25 @@ import { LoginPage } from "./pages/LoginPage";
 import { SignupPage } from "./pages/SignupPage";
 import { SSOCallbackPage } from "./pages/SSOCallbackPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { useUser } from "@clerk/clerk-react";
+import { useUserStore } from "./store/userStore";
+import { useEffect } from "react";
 
 function App() {
+    const { isLoaded, user } = useUser();
+    const { setCurrentUser } = useUserStore();
+
+    useEffect(() => {
+        if (isLoaded && user) {
+            setCurrentUser({
+                id: user.id,
+                name: user.username || user.firstName || "Anonymous",
+                email: user.emailAddresses[0]?.emailAddress,
+                avatar: user.imageUrl,
+            });
+        }
+    }, [isLoaded, user]);
+
     return (
         <>
             <BrowserRouter>
