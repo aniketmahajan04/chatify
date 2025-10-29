@@ -11,7 +11,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth, useUser } from "@clerk/clerk-react";
 
 function App() {
-    // const { isLoaded, user } = useUser();
     const { setCurrentUser } = useUserStore();
     const { getToken } = useAuth();
     const { isLoaded } = useUser();
