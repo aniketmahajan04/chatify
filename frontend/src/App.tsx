@@ -5,15 +5,15 @@ import { LoginPage } from "./pages/LoginPage";
 import { SignupPage } from "./pages/SignupPage";
 import { SSOCallbackPage } from "./pages/SSOCallbackPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import { useUserStore } from "./store/userStore";
-import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useAuth, useUser } from "@clerk/clerk-react";
+// import { useUserStore } from "./store/userStore";
+// import { useEffect } from "react";
+// import { useQuery } from "@tanstack/react-query";
+// import { useAuth, useUser } from "@clerk/clerk-react";
 
 function App() {
-    const { setCurrentUser } = useUserStore();
-    const { getToken } = useAuth();
-    const { isLoaded } = useUser();
+    // const { setCurrentUser } = useUserStore();
+    // const { getToken } = useAuth();
+    // const { isLoaded } = useUser();
     // useEffect(() => {
     //     if (isLoaded && user) {
     //         setCurrentUser({
@@ -26,30 +26,30 @@ function App() {
     // }, [isLoaded, user]);
 
     // Fetching user from backend
-    const { data } = useQuery({
-        queryKey: ["currentUser"],
-        enabled: isLoaded,
-        queryFn: async () => {
-            const token = await getToken();
-            const res = await fetch("http://localhost:3000/me", {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-                credentials: "include", // send cookies/token
-            });
-            if (!res.ok) throw new Error("Failed to fetch user");
-            return res.json();
-        },
-    });
-    useEffect(() => {
-        if (data)
-            setCurrentUser({
-                id: data.id,
-                name: data.name,
-                email: data.email,
-            });
-    }, [data]);
+    // const { data } = useQuery({
+    //     queryKey: ["currentUser"],
+    //     enabled: isLoaded,
+    //     queryFn: async () => {
+    //         const token = await getToken();
+    //         const res = await fetch("http://localhost:3000/me", {
+    //             method: "GET",
+    //             headers: {
+    //                 Authorization: `Bearer ${token}`,
+    //             },
+    //             credentials: "include", // send cookies/token
+    //         });
+    //         if (!res.ok) throw new Error("Failed to fetch user");
+    //         return res.json();
+    //     },
+    // });
+    // useEffect(() => {
+    //     if (data)
+    //         setCurrentUser({
+    //             id: data.id,
+    //             name: data.name,
+    //             email: data.email,
+    //         });
+    // }, [data]);
     // if (isLoading) return <div>Loading...</div>;
     // if (isError) return <div>Error loading user</div>;
 
