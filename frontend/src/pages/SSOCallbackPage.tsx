@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@clerk/clerk-react";
 import { AuthenticateWithRedirectCallback } from "@clerk/clerk-react";
@@ -6,7 +6,7 @@ import { AuthenticateWithRedirectCallback } from "@clerk/clerk-react";
 export const SSOCallbackPage = () => {
   const { isSignedIn, getToken, isLoaded, userId } = useAuth();
   const navigate = useNavigate();
-  const [syncAttempted, setSyncAttempted] = useState(false);
+  const hasAttemptedSync = useRef(false);
 
   useEffect(() => {
     const handleSSOCallback = async () => {
@@ -19,23 +19,26 @@ export const SSOCallbackPage = () => {
         userId
       );
 
+      // Wait for Clerk to finish loading
       if (!isLoaded) {
         console.log("Clerk not loaded yet, waiting...");
         return;
       }
 
+      // Wait for authentication to complete
       if (!isSignedIn || !userId) {
         console.log("Not signed in or no userId yet, waiting...");
         return;
       }
 
-      if (syncAttempted) {
+      // Prevent multiple sync attempts
+      if (hasAttemptedSync.current) {
         console.log("Sync already attempted, skipping...");
         return;
       }
 
       console.log("User is signed in, syncing to database...");
-      setSyncAttempted(true);
+      hasAttemptedSync.current = true;
 
       try {
         const token = await getToken();
@@ -69,7 +72,7 @@ export const SSOCallbackPage = () => {
     };
 
     handleSSOCallback();
-  }, [isLoaded, isSignedIn, userId, getToken, navigate, syncAttempted]);
+  }, [isLoaded, isSignedIn, userId, getToken, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0F0F11] text-white">

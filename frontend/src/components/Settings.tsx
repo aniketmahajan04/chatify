@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Bell, LogOut, Palette, Shield, User } from "lucide-react";
 import { useState } from "react";
 import { MyProfile } from "./MyProfile";
+import { useUserStore } from "../store/userStore";
 
 type Props = {
   onClose: () => void;
@@ -10,20 +11,16 @@ type Props = {
 
 export const Settings = ({ onClose, onLogout }: Props) => {
   const [showProfile, setShowProfile] = useState(false);
+  const { currentUser, setCurrentUser } = useUserStore();
 
-  const [user, setUser] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
-    bio: "Hey there! I'm using Chatify 🚀",
-    avatar: "https://randomuser.me/api/portraits/men/75.jpg",
-  });
-
-  if (showProfile) {
+  if (showProfile && currentUser) {
     return (
       <MyProfile
-        user={user}
+        user={currentUser}
         onClose={() => setShowProfile(false)}
-        onUpdate={(updatedUser) => setUser(updatedUser)}
+        onUpdate={(updatedUser) =>
+          setCurrentUser({ ...currentUser, ...updatedUser })
+        }
       />
     );
   }

@@ -1,14 +1,15 @@
 import { motion } from "framer-motion";
 import { useAuth, useUser } from "@clerk/clerk-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 export const HomePage = () => {
   const { isSignedIn, getToken } = useAuth();
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const navigate = useNavigate();
   const [syncing, setSyncing] = useState(false);
+  const hasAttemptedSync = useRef(false);
 
   const features = [
     {
@@ -28,10 +29,23 @@ export const HomePage = () => {
     },
   ];
 
+  // Reset sync attempt when user changes
   useEffect(() => {
-    if (!isSignedIn || !user || syncing) return;
+    hasAttemptedSync.current = false;
+  }, [user?.id]);
+
+  useEffect(() => {
+    // Wait for Clerk to finish loading before checking auth state
+    if (!isLoaded) return;
+
+    // If user is not signed in, don't do anything
+    if (!isSignedIn || !user) return;
+
+    // If already syncing or already attempted sync, don't start another sync
+    if (syncing || hasAttemptedSync.current) return;
 
     const syncUser = async () => {
+      hasAttemptedSync.current = true;
       setSyncing(true);
       try {
         const token = await getToken();
@@ -49,14 +63,20 @@ export const HomePage = () => {
           navigate("/chat");
         } else {
           console.error("Failed to sync user");
+          // Still redirect even if sync fails (user might already be synced)
+          navigate("/chat");
         }
       } catch (err) {
         console.error("Failed to sync user:", err);
+        // Still redirect even if sync fails (user might already be synced)
+        navigate("/chat");
+      } finally {
+        setSyncing(false);
       }
     };
 
     syncUser();
-  }, [isSignedIn, user, getToken, navigate]);
+  }, [isLoaded, isSignedIn, user, getToken, navigate, syncing]);
 
   // Show different content based on auth state
   if (isSignedIn && syncing) {
