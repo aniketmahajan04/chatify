@@ -36,7 +36,11 @@ export const LoginPage = () => {
         // Sync user to backend database
         try {
           const token = await getToken();
-          const response = await fetch("http://localhost:3000/login", {
+          if (!token) {
+            throw new Error("Failed to get authentication token");
+          }
+          
+          const response = await fetch("http://localhost:3000/user/login", {
             method: "POST",
             headers: {
               Authorization: `Bearer ${token}`,
@@ -48,13 +52,17 @@ export const LoginPage = () => {
             console.log("User synced to database successfully!");
             navigate("/chat");
           } else {
-            const errorData = await response.json();
+            const errorData = await response.json().catch(() => ({ message: "Unknown error" }));
             console.error("Failed to sync user to database:", errorData);
-            navigate("/chat");
+            setError(errorData.message || "Failed to sync with server. Please try again.");
+            setLoading(false);
+            // Don't navigate on error - let user see the error and retry
           }
-        } catch (syncError) {
+        } catch (syncError: any) {
           console.error("Error syncing user:", syncError);
-          navigate("/chat");
+          setError(syncError.message || "Network error. Please check if the server is running.");
+          setLoading(false);
+          // Don't navigate on error - let user see the error and retry
         }
 
         // console.log("Login successful!");

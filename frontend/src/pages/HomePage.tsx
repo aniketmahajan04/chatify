@@ -50,7 +50,7 @@ export const HomePage = () => {
       try {
         const token = await getToken();
 
-        const response = await fetch("http://localhost:3000/login", {
+        const response = await fetch("http://localhost:3000/user/login", {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,

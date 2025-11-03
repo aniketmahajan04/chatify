@@ -44,7 +44,7 @@ export const SSOCallbackPage = () => {
         const token = await getToken();
         console.log("Token received, calling backend...");
 
-        const response = await fetch("http://localhost:3000/login", {
+        const response = await fetch("http://localhost:3000/user/login", {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,

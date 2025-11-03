@@ -40,10 +40,6 @@ export const MyProfile = ({ onClose, user, onUpdate }: Props) => {
 
   return (
     <motion.div
-      // initial={{ x: "100%" }}
-      // animate={{ x: 0 }}
-      // exit={{ x: "100%" }}
-      // transition={{ type: "spring", stiffness: 80, damping: 20 }}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}

@@ -9,21 +9,14 @@ export function ProtectedRoute({ children }: { children: any }) {
   const { setCurrentUser } = useUserStore();
   const { getToken } = useAuth();
 
-  // Wait until Clerk finishes loading user state
-  if (!isLoaded) return null;
-
-  // If not signed in, redirect to your own login page
-  if (!isSignedIn) {
-    return <Navigate to="/login" replace />;
-  }
-
+  // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
   // Fetching user from backend
   const { data, isLoading, isError } = useQuery({
     queryKey: ["currentUser"],
-    enabled: isLoaded && isSignedIn,
+    enabled: isLoaded && isSignedIn, // Only run query when loaded and signed in
     queryFn: async () => {
       const token = await getToken();
-      const res = await fetch("http://localhost:3000/me", {
+      const res = await fetch("http://localhost:3000/user/me", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -46,6 +39,15 @@ export function ProtectedRoute({ children }: { children: any }) {
       });
     }
   }, [data, clerkUser, setCurrentUser]);
+
+  // NOW we can do conditional returns AFTER all hooks
+  // Wait until Clerk finishes loading user state
+  if (!isLoaded) return null;
+
+  // If not signed in, redirect to your own login page
+  if (!isSignedIn) {
+    return <Navigate to="/login" replace />;
+  }
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error loading user</div>;
