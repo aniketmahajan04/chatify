@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { clerkClient, getAuth } from "@clerk/express";
 import { prismaClient } from "../lib/db";
+import { getCurrentUser } from "../utils/user";
 
 const login = async (req: Request, res: Response) => {
   try {
@@ -106,6 +107,30 @@ const profile = async (req: Request, res: Response) => {
   }
 };
 
+const getAllUser = async (req: Request, res: Response) => {
+  try {
+    // const user = getCurrentUser(req, res);
+    // if (!user) {
+    //   return res.status(401).json({ success: false, message: "Unauthorized" });
+    // }
+
+    const allUsers = await prismaClient.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        avatar: true,
+        bio: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return res.json(allUsers);
+  } catch (err: any) {
+    console.error("Fetch all user error", err);
+    return res.status(404).json({ success: false, message: "User not found" });
+  }
+};
+
 const friendRequests = async (req: Request, res: Response) => {
   try {
     const { userId } = getAuth(req);
@@ -142,8 +167,14 @@ const friendRequests = async (req: Request, res: Response) => {
             const clerkUser = await clerkClient.users.getUser(n.sender.clerkId);
             senderAvatar = clerkUser.imageUrl ?? null;
             if (!senderName) {
-              const fullName = `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim();
-              senderName = fullName || clerkUser.username || clerkUser.emailAddresses[0]?.emailAddress || null;
+              const fullName = `${clerkUser.firstName || ""} ${
+                clerkUser.lastName || ""
+              }`.trim();
+              senderName =
+                fullName ||
+                clerkUser.username ||
+                clerkUser.emailAddresses[0]?.emailAddress ||
+                null;
             }
           }
         } catch (e) {
@@ -168,4 +199,13 @@ const friendRequests = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+const sendFriendRequest = async (req: Request, res: Response) => {
+  const user = await getCurrentUser(req, res);
+
+  if (!user) {
+    return res.status(404).json({ success: false, message: "User not found" });
+  }
+};
+
 export { login, profile, friendRequests };

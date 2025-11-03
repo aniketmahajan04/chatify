@@ -19,6 +19,8 @@ model User {
   clerkId         String              @unique
   name            String
   email           String              @unique
+  bio             String?
+  avatar          String?
   password        String?
   createdAt       DateTime            @default(now())
 
