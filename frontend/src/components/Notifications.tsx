@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
+import { useNotifications } from "../hooks/useNotifications";
 
 type Notification = {
   id: number;
@@ -8,18 +9,22 @@ type Notification = {
 };
 
 interface Props {
-  notifications: Notification[];
-  onAccept: (id: number) => void;
-  onReject: (id: number) => void;
+  // notifications: Notification[];
+  onAccept?: (id: number) => void;
+  onReject?: (id: number) => void;
   onClose: () => void;
 }
 
 export const Notifications = ({
-  notifications,
+  // notifications,
   onAccept,
   onReject,
   onClose,
 }: Props) => {
+  const { data, isLoading, error, refetch } = useNotifications();
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error loading user</div>;
   return (
     <AnimatePresence>
       <motion.div
@@ -65,12 +70,12 @@ export const Notifications = ({
 
           {/* Notification list */}
           <div className="flex-1 overflow-y-auto">
-            {notifications.length === 0 ? (
+            {data.length === 0 ? (
               <p className="text-center py-6 text-gray-500">
                 No new notifications
               </p>
             ) : (
-              notifications.map((n) => (
+              data.map((n: any) => (
                 <motion.div
                   key={n.id}
                   initial={{ opacity: 0, y: -10 }}
@@ -89,13 +94,13 @@ export const Notifications = ({
                   </div>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => onAccept(n.id)}
+                      // onClick={() => onAccept(n.id)}
                       className="text-green-400 hover:text-green-300 text-sm"
                     >
                       Accept
                     </button>
                     <button
-                      onClick={() => onReject(n.id)}
+                      // onClick={() => onReject(n.id)}
                       className="text-red-400 hover:text-red-300 text-sm"
                     >
                       Reject

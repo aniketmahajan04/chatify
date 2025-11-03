@@ -106,4 +106,66 @@ const profile = async (req: Request, res: Response) => {
   }
 };
 
-export { login, profile };
+const friendRequests = async (req: Request, res: Response) => {
+  try {
+    const { userId } = getAuth(req);
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+    const user = await prismaClient.user.findUnique({
+      where: {
+        clerkId: userId,
+      },
+    });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+    const friendRequests = await prismaClient.notifications.findMany({
+      where: {
+        receiverId: user.id,
+      },
+      include: { sender: true },
+      orderBy: { createdAt: "desc" },
+    });
+
+    // Enrich each notification with sender's Clerk profile (e.g., avatar)
+    const enriched = await Promise.all(
+      friendRequests.map(async (n) => {
+        let senderAvatar: string | null = null;
+        let senderName: string | null = n.sender?.name ?? null;
+        try {
+          if (n.sender?.clerkId) {
+            const clerkUser = await clerkClient.users.getUser(n.sender.clerkId);
+            senderAvatar = clerkUser.imageUrl ?? null;
+            if (!senderName) {
+              const fullName = `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim();
+              senderName = fullName || clerkUser.username || clerkUser.emailAddresses[0]?.emailAddress || null;
+            }
+          }
+        } catch (e) {
+          // If Clerk lookup fails, continue without avatar
+        }
+        return {
+          id: n.id,
+          status: n.status,
+          createdAt: n.createdAt,
+          senderId: n.senderId,
+          receiverId: n.receiverId,
+          // frontend-friendly fields
+          senderName,
+          senderAvatar,
+        };
+      })
+    );
+
+    return res.json(enriched);
+  } catch (err: any) {
+    console.error("Get user error:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+export { login, profile, friendRequests };

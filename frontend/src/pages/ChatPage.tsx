@@ -48,14 +48,14 @@ export const ChatPage = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isMyProfileOpen, setIsMyProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      sender: "Alice",
-      avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-      message: "wants to connect with you",
-    },
-  ]);
+  // const [notifications, setNotifications] = useState([
+  //   {
+  //     id: 1,
+  //     sender: "Alice",
+  //     avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+  //     message: "wants to connect with you",
+  //   },
+  // ]);
   const [isUserListOpen, setIsUserListOpen] = useState(false);
   const [isUserProfileOpen, setIsUserProfileOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -74,15 +74,15 @@ export const ChatPage = () => {
     setSelectedChat(null); // Reset selected chat when switching menus
   };
 
-  const handleAccept = (id: number) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-    console.log("Accepted request", id);
-  };
+  // const handleAccept = (id: number) => {
+  //   setNotifications((prev) => prev.filter((n) => n.id !== id));
+  //   console.log("Accepted request", id);
+  // };
 
-  const handleReject = (id: number) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-    console.log("Rejected request", id);
-  };
+  // const handleReject = (id: number) => {
+  //   setNotifications((prev) => prev.filter((n) => n.id !== id));
+  //   console.log("Rejected request", id);
+  // };
 
   return (
     <div className="flex h-screen relative overflow-hidden">
@@ -186,9 +186,9 @@ export const ChatPage = () => {
       {/* ✅ Notifications - Available on both desktop and mobile */}
       {isNotificationsOpen && (
         <Notifications
-          notifications={notifications}
-          onAccept={handleAccept}
-          onReject={handleReject}
+          // notifications={notifications}
+          // onAccept={handleAccept}
+          // onReject={handleReject}
           onClose={() => setIsNotificationsOpen(false)}
         />
       )}
