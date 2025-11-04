@@ -197,7 +197,7 @@ export const ChatPage = () => {
       {isUserListOpen && (
         <UserListDrawer
           isOpen={isUserListOpen}
-          users={dummyUsers}
+          // users={dummyUsers}
           onClose={() => setIsUserListOpen(false)}
           onUserSelect={(user) => {
             setSelectedUser(user);

@@ -1,19 +1,22 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { FiArrowLeft, FiPlus } from "react-icons/fi";
+import { useAllUsers } from "../hooks/useAllUsers";
 
 interface UserListDrawerProp {
   isOpen: boolean;
-  users: { id: number; name: string; avatar: string; bio: string }[];
+  // users: { id: number; name: string; avatar: string; bio: string }[];
   onClose: () => void;
   onUserSelect: (user: any) => void;
 }
 
 export const UserListDrawer = ({
   isOpen,
-  users,
+  // users,
   onClose,
   onUserSelect,
 }: UserListDrawerProp) => {
+  const { data: users = [], isLoading, isError } = useAllUsers();
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -47,6 +50,18 @@ export const UserListDrawer = ({
               </h2>
             </div>
 
+            {/* Loading & Error States */}
+            {isLoading && (
+              <p className="text-gray-500 text-center mt-10">
+                Loading users...
+              </p>
+            )}
+            {isError && (
+              <p className="text-red-500 text-center mt-10">
+                Failed to fetch users
+              </p>
+            )}
+
             {/* Search Bar */}
             <div className="px-4 py-3 border-b border-[#27272A]">
               <input
@@ -60,45 +75,47 @@ export const UserListDrawer = ({
             </div>
 
             {/* User List */}
-            <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-[#27272A] scrollbar-track-transparent">
-              {users.map((user) => (
-                <motion.div
-                  key={user.id}
-                  whileHover={{ scale: 1.01 }}
-                  className="flex items-center justify-between p-4 hover:bg-[#1E1E25]
+            {!isLoading && !isError && (
+              <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-[#27272A] scrollbar-track-transparent">
+                {users.map((user: any) => (
+                  <motion.div
+                    key={user.id}
+                    whileHover={{ scale: 1.01 }}
+                    className="flex items-center justify-between p-4 hover:bg-[#1E1E25]
                      cursor-pointer transition-all border-b border-[#18181B]/40"
-                >
-                  {/* Left section: profile */}
-                  <div
-                    className="flex items-center gap-3"
-                    onClick={() => onUserSelect(user)}
                   >
-                    <img
-                      src={user.avatar}
-                      alt={user.name}
-                      className="w-12 h-12 rounded-full border border-[#27272A]"
-                    />
-                    <div>
-                      <h3 className="font-medium text-[#E4E6EB]">
-                        {user.name}
-                      </h3>
-                      <p className="text-sm text-gray-400">{user.bio}</p>
+                    {/* Left section: profile */}
+                    <div
+                      className="flex items-center gap-3"
+                      onClick={() => onUserSelect(user)}
+                    >
+                      <img
+                        src={user.avatar}
+                        alt={user.name}
+                        className="w-12 h-12 rounded-full border border-[#27272A]"
+                      />
+                      <div>
+                        <h3 className="font-medium text-[#E4E6EB]">
+                          {user.name}
+                        </h3>
+                        <p className="text-sm text-gray-400">{user.bio}</p>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Right section: Add button */}
-                  <button className="p-2 bg-[#A2A970] rounded-full hover:bg-[#8fa95a] transition">
-                    <FiPlus size={18} />
-                  </button>
-                </motion.div>
-              ))}
+                    {/* Right section: Add button */}
+                    <button className="p-2 bg-[#A2A970] rounded-full hover:bg-[#8fa95a] transition">
+                      <FiPlus size={18} />
+                    </button>
+                  </motion.div>
+                ))}
 
-              {users.length === 0 && (
-                <p className="text-gray-500 text-center mt-10">
-                  No users found
-                </p>
-              )}
-            </div>
+                {users.length === 0 && (
+                  <p className="text-gray-500 text-center mt-10">
+                    No users found
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </motion.div>
       )}

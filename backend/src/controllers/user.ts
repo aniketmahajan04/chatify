@@ -109,12 +109,15 @@ const profile = async (req: Request, res: Response) => {
 
 const getAllUser = async (req: Request, res: Response) => {
   try {
-    // const user = getCurrentUser(req, res);
-    // if (!user) {
-    //   return res.status(401).json({ success: false, message: "Unauthorized" });
-    // }
+    const user = await getCurrentUser(req, res);
+    if (!user) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
 
     const allUsers = await prismaClient.user.findMany({
+      where: {
+        id: { not: user.id },
+      },
       select: {
         id: true,
         name: true,
@@ -123,6 +126,8 @@ const getAllUser = async (req: Request, res: Response) => {
       },
       orderBy: { createdAt: "desc" },
     });
+
+    // console.log("All users from DB: ", allUsers);
 
     return res.json(allUsers);
   } catch (err: any) {
@@ -208,4 +213,4 @@ const sendFriendRequest = async (req: Request, res: Response) => {
   }
 };
 
-export { login, profile, friendRequests };
+export { login, profile, friendRequests, getAllUser };
