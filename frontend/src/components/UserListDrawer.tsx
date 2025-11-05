@@ -125,7 +125,11 @@ export const UserListDrawer = ({
                                             className="p-2 bg-[#A2A970] rounded-full hover:bg-[#8fa95a] transition"
                                             disabled={isPending}
                                         >
-                                            <FiPlus size={18} />
+                                            {isPending ? (
+                                                "..."
+                                            ) : (
+                                                <FiPlus size={18} />
+                                            )}
                                         </button>
                                     </motion.div>
                                 ))}

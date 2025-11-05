@@ -227,19 +227,19 @@ const sendFriendRequest = async (req: Request, res: Response) => {
                 .json({ success: false, message: "User not found" });
         }
 
-        const { receivedId } = req.body; // the user we want to send request to
-        if (!receivedId) {
+        const { receiverId } = req.body; // the user we want to send request to
+        if (!receiverId) {
             return res
                 .status(400)
                 .json({ success: false, message: "Receiver ID is required" });
         }
 
-        console.log("receiver id: ", receivedId);
+        console.log("receiver id: ", receiverId);
 
         const exitstingRequest = await prismaClient.notifications.findFirst({
             where: {
                 senderId: user.id,
-                receiverId: receivedId,
+                receiverId: receiverId,
             },
         });
 
@@ -253,7 +253,7 @@ const sendFriendRequest = async (req: Request, res: Response) => {
         const newRequest = await prismaClient.notifications.create({
             data: {
                 senderId: user.id,
-                receiverId: receivedId,
+                receiverId: receiverId,
                 status: "pending",
             },
         });
