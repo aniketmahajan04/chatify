@@ -5,10 +5,6 @@ import { LoginPage } from "./pages/LoginPage";
 import { SignupPage } from "./pages/SignupPage";
 import { SSOCallbackPage } from "./pages/SSOCallbackPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-// import { useUserStore } from "./store/userStore";
-// import { useEffect } from "react";
-// import { useQuery } from "@tanstack/react-query";
-// import { useAuth, useUser } from "@clerk/clerk-react";
 
 function App() {
   return (
