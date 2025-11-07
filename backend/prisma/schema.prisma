@@ -5,35 +5,73 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
+    provider = "prisma-client-js"
+    output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
-  provider = "mongodb"
-  url = env("DATABASE_URL")
+    provider = "mongodb"
+    url      = env("DATABASE_URL")
 }
 
 model User {
-  id              String              @id @default(auto()) @map("_id") @db.ObjectId
-  clerkId         String              @unique
-  name            String
-  email           String              @unique
-  bio             String?
-  avatar          String?
-  password        String?
-  createdAt       DateTime            @default(now())
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    clerkId   String   @unique
+    name      String
+    email     String   @unique
+    bio       String?
+    avatar    String?
+    password  String?
+    createdAt DateTime @default(now())
 
-  sentNotifications     Notifications[] @relation("SentNotifications")
-  receivedNotifications Notifications[] @relation("ReceivedNotifications")
+    sentNotifications     Notifications[]   @relation("SentNotifications")
+    receivedNotifications Notifications[]   @relation("ReceivedNotifications")
+    ChatParticipant       ChatParticipant[]
+    Message               Message[]
 }
 
 model Notifications {
-  id              String               @id @default(auto()) @map("_id") @db.ObjectId
-  sender          User                 @relation("SentNotifications", fields: [senderId], references: [id])
-  senderId        String               @db.ObjectId 
-  receiver        User                 @relation("ReceivedNotifications", fields: [receiverId], references: [id])
-  receiverId      String               @db.ObjectId
-  status          String               @default("PENDING") // PENDING, ACCEPTED, REJECTED
-  createdAt       DateTime             @default(now())
+    id         String   @id @default(auto()) @map("_id") @db.ObjectId
+    sender     User     @relation("SentNotifications", fields: [senderId], references: [id])
+    senderId   String   @db.ObjectId
+    receiver   User     @relation("ReceivedNotifications", fields: [receiverId], references: [id])
+    receiverId String   @db.ObjectId
+    status     String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
+    createdAt  DateTime @default(now())
+}
+
+model Chat {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    name      String?
+    isGroup   Boolean  @default(false)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relations
+    messages     Message[]
+    participants ChatParticipant[]
+}
+
+model ChatParticipant {
+    id     String @id @default(auto()) @map("_id") @db.ObjectId
+    chatId String @db.ObjectId
+    userId String @db.ObjectId
+    role   String @default("member") // can be "admin", "member"
+
+    chat Chat @relation(fields: [chatId], references: [id])
+    user User @relation(fields: [userId], references: [id])
+
+    @@unique([chatId, userId]) // Prevent duplicate entries
+}
+
+model Message {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    content   String
+    createdAt DateTime @default(now())
+
+    chatId   String @db.ObjectId
+    senderId String @db.ObjectId
+
+    chat   Chat @relation(fields: [chatId], references: [id])
+    sender User @relation(fields: [senderId], references: [id])
 }
