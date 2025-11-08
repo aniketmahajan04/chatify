@@ -1,3 +1,4 @@
+import { useUser } from "@clerk/clerk-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const BASE_URL = "http://localhost:3000/chat";
@@ -9,14 +10,22 @@ const fetchChats = async () => {
     return res.json();
 };
 
-const createNewChat = async (receiverId: string) => {
+const createNewChat = async (
+    receiverIds: string[],
+    isGroup = false,
+    name?: string,
+) => {
     const res = await fetch(`${BASE_URL}/new`, {
         method: "POST",
         credentials: "include",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ receiverId }),
+        body: JSON.stringify({
+            participants: receiverIds,
+            isGroup,
+            name: isGroup ? name : null,
+        }),
     });
 
     if (!res.ok) throw new Error("Failed to create chat");
@@ -43,8 +52,21 @@ export const useChats = () => {
 
 export const useCreateChat = () => {
     const queryClient = useQueryClient();
+    const { user } = useUser();
+
     return useMutation({
-        mutationFn: createNewChat,
+        mutationFn: async ({
+            receiverIds,
+            isGroup = false,
+            name,
+        }: {
+            receiverIds: string[];
+            isGroup?: boolean;
+            name?: string;
+        }) => {
+            if (!user?.id) throw new Error("user not logged in");
+            return createNewChat(receiverIds, isGroup, name);
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["chats"] });
         },

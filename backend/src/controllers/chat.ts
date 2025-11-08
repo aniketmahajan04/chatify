@@ -49,10 +49,29 @@ const createNewChat = async (req: Request, res: Response) => {
         }
 
         if (!Array.isArray(participants) || participants.length === 0) {
-            return res
-                .status(400)
-                .json({ success: false, message: "Participants requiered" });
+            return res.status(400).json({
+                success: false,
+                message: "At least one participants is requiered",
+            });
         }
+
+        // Fileter out null/undefined participants
+        // const validParticipants = participants.filter(Boolean);
+
+        const dbParticipants = await prismaClient.user.findMany({
+            where: { clerkId: { in: participants } },
+            select: { id: true },
+        });
+
+        // if (validParticipants.length === 0) {
+        //     return res.status(400).json({
+        //         success: false,
+        //         message: "No valid participants provided",
+        //     });
+        // }
+
+        // ensure isGroup is boolean
+        // const groupFlag = Boolean(isGroup);
 
         if (!isGroup && participants.length === 1) {
             // 1-on-1 check if already exists.
@@ -60,8 +79,13 @@ const createNewChat = async (req: Request, res: Response) => {
                 where: {
                     isGroup: false,
                     participants: {
-                        every: {
-                            userId: { in: [user.id, participants[0]] },
+                        some: {
+                            userId: user.id,
+                        },
+                    },
+                    AND: {
+                        participants: {
+                            some: { userId: participants[0] },
                         },
                     },
                 },
@@ -77,7 +101,9 @@ const createNewChat = async (req: Request, res: Response) => {
                 participants: {
                     create: [
                         { userId: user.id, role: "admin" },
-                        ...participants.map((p: string) => ({ userId: p })),
+                        ...dbParticipants.map((p) => ({
+                            userId: p.id,
+                        })),
                     ],
                 },
             },

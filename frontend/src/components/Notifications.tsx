@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useNotifications } from "../hooks/useNotifications";
+import { useCreateChat } from "../hooks/useChats";
 
 // type Notification = {
 //   id: number;
@@ -10,8 +11,8 @@ import { useNotifications } from "../hooks/useNotifications";
 
 interface Props {
     // notifications: Notification[];
-    onAccept?: (id: number) => void;
-    onReject?: (id: number) => void;
+    // onAccept?: (id: number) => void;
+    // onReject?: (id: number) => void;
     onClose: () => void;
 }
 
@@ -21,10 +22,30 @@ export const Notifications = ({
     // onReject,
     onClose,
 }: Props) => {
-    const { data, isLoading, error, refetch } = useNotifications();
+    const { data, isLoading, error } = useNotifications();
+    const { mutate: createChat, isPending: isCreating } = useCreateChat();
+    // const { mutate: deleteNotification, isPending: isPending } = useDeleteNotification();
 
     if (isLoading) return <div>Loading...</div>;
     if (error) return <div>Error loading user</div>;
+
+    const handleAccept = (senderId: string, notificationId: string) => {
+        createChat(
+            {
+                receiverIds: [senderId],
+                isGroup: false,
+            },
+            {
+                onSuccess: () => {
+                    // deleteNotification(notificationId);
+                    alert("Chat created successfully ✅");
+                },
+                onError: (err: any) =>
+                    alert(err.message || "Failed to create chat ❌"),
+            },
+        );
+    };
+
     return (
         <AnimatePresence>
             <motion.div
@@ -98,7 +119,10 @@ export const Notifications = ({
                                     </div>
                                     <div className="flex gap-2">
                                         <button
-                                            // onClick={() => onAccept(n.id)}
+                                            disabled={isCreating}
+                                            onClick={() =>
+                                                handleAccept(n.senderId, n.id)
+                                            }
                                             className="text-green-400 hover:text-green-300 text-sm"
                                         >
                                             Accept
