@@ -13,7 +13,10 @@ function App() {
         <Route path="/" element={<HomePage />}></Route>
         <Route path="/login" element={<LoginPage />}></Route>
         <Route path="/register" element={<SignupPage />}></Route>
-        <Route path="/sso-callback" element={<SSOCallbackPage />}></Route>
+        <Route
+          path="/sso-callback"
+          element={<SSOCallbackPage />}
+        ></Route>
         <Route
           path="/chat"
           element={

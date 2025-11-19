@@ -56,24 +56,19 @@ const createNewChat = async (req: Request, res: Response) => {
         }
 
         // Fileter out null/undefined participants
-        // const validParticipants = participants.filter(Boolean);
+        const validParticipants = participants.filter(Boolean);
+        if (validParticipants.length === 0) {
+            return res.status(400).json({
+                message: "No valid participants",
+            });
+        }
 
         const dbParticipants = await prismaClient.user.findMany({
-            where: { clerkId: { in: participants } },
+            where: { clerkId: { in: validParticipants } },
             select: { id: true },
         });
 
-        // if (validParticipants.length === 0) {
-        //     return res.status(400).json({
-        //         success: false,
-        //         message: "No valid participants provided",
-        //     });
-        // }
-
-        // ensure isGroup is boolean
-        // const groupFlag = Boolean(isGroup);
-
-        if (!isGroup && participants.length === 1) {
+        if (!isGroup && dbParticipants.length === 1) {
             // 1-on-1 check if already exists.
             const existingChat = await prismaClient.chat.findFirst({
                 where: {
@@ -85,7 +80,7 @@ const createNewChat = async (req: Request, res: Response) => {
                     },
                     AND: {
                         participants: {
-                            some: { userId: participants[0] },
+                            some: { userId: participants[0].id },
                         },
                     },
                 },

@@ -24,7 +24,7 @@ const createNewChat = async (
         body: JSON.stringify({
             participants: receiverIds,
             isGroup,
-            name: isGroup ? name : null,
+            name: name ?? null,
         }),
     });
 

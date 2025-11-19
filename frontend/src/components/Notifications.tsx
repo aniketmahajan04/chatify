@@ -29,10 +29,15 @@ export const Notifications = ({
     if (isLoading) return <div>Loading...</div>;
     if (error) return <div>Error loading user</div>;
 
-    const handleAccept = (senderId: string, notificationId: string) => {
+    const handleAccept = (senderClerkId: string) => {
+        if (!senderClerkId) {
+            alert("Invalid sender id");
+            return;
+        }
+
         createChat(
             {
-                receiverIds: [senderId],
+                receiverIds: [senderClerkId],
                 isGroup: false,
             },
             {
@@ -40,7 +45,7 @@ export const Notifications = ({
                     // deleteNotification(notificationId);
                     alert("Chat created successfully ✅");
                 },
-                onError: (err: any) =>
+                onError: (err) =>
                     alert(err.message || "Failed to create chat ❌"),
             },
         );
@@ -105,13 +110,13 @@ export const Notifications = ({
                                     className="flex items-center gap-3 px-4 py-3 border-b border-zinc-800 hover:bg-zinc-800/50"
                                 >
                                     <img
-                                        src={n.avatar}
-                                        alt={n.sender}
+                                        src={n.senderAvatar}
+                                        alt={n.senderName}
                                         className="w-10 h-10 rounded-full object-cover"
                                     />
                                     <div className="flex-1">
                                         <p className="text-sm font-medium">
-                                            {n.sender}
+                                            {n.senderName}
                                         </p>
                                         <p className="text-xs text-gray-400">
                                             {n.message}
@@ -121,7 +126,7 @@ export const Notifications = ({
                                         <button
                                             disabled={isCreating}
                                             onClick={() =>
-                                                handleAccept(n.senderId, n.id)
+                                                handleAccept(n.senderClerkId)
                                             }
                                             className="text-green-400 hover:text-green-300 text-sm"
                                         >

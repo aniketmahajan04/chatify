@@ -167,16 +167,23 @@ const friendRequests = async (req: Request, res: Response) => {
         const friendRequests = await prismaClient.notifications.findMany({
             where: {
                 receiverId: user.id,
+                status: "Pending",
             },
-            include: { sender: true },
+            include: { sender: true, receiver: true },
             orderBy: { createdAt: "desc" },
         });
 
         // Enrich each notification with sender's Clerk profile (e.g., avatar)
         const enriched = await Promise.all(
             friendRequests.map(async (n) => {
+                // Validate that sender exists
+                if (!n.sender) {
+                    console.error(`Notification ${n.id} has no sender`);
+                    return null;
+                }
+
                 let senderAvatar: string | null = null;
-                let senderName: string | null = n.sender?.name ?? null;
+                let senderName: string | null = n.sender.name ?? null;
                 try {
                     if (n.sender?.clerkId) {
                         const clerkUser = await clerkClient.users.getUser(
@@ -196,6 +203,10 @@ const friendRequests = async (req: Request, res: Response) => {
                     }
                 } catch (e) {
                     // If Clerk lookup fails, continue without avatar
+                    console.error(
+                        `Failed to fetch Clerk user for ${n.sender.clerkId}:`,
+                        e,
+                    );
                 }
                 return {
                     id: n.id,
@@ -203,14 +214,17 @@ const friendRequests = async (req: Request, res: Response) => {
                     createdAt: n.createdAt,
                     senderId: n.senderId,
                     receiverId: n.receiverId,
+                    senderClerkId: n.sender.clerkId,
                     // frontend-friendly fields
-                    senderName,
-                    senderAvatar,
+                    senderName: senderName,
+                    senderAvatar: senderAvatar,
                 };
             }),
         );
 
-        return res.json(enriched);
+        // Filter out any null entries (notification with missing senders)
+        const validRequests = enriched.filter(Boolean);
+        return res.json(validRequests);
     } catch (err: any) {
         console.error("Get user error:", err);
         res.status(500).json({ success: false, message: err.message });
