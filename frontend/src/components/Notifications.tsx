@@ -1,5 +1,8 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useNotifications } from "../hooks/useNotifications";
+import {
+    useNotifications,
+    useUpdateNotification,
+} from "../hooks/useNotifications";
 import { useCreateChat } from "../hooks/useChats";
 
 // type Notification = {
@@ -24,12 +27,12 @@ export const Notifications = ({
 }: Props) => {
     const { data, isLoading, error } = useNotifications();
     const { mutate: createChat, isPending: isCreating } = useCreateChat();
-    // const { mutate: deleteNotification, isPending: isPending } = useDeleteNotification();
+    const { mutate: updateNotification } = useUpdateNotification();
 
     if (isLoading) return <div>Loading...</div>;
     if (error) return <div>Error loading user</div>;
 
-    const handleAccept = (senderClerkId: string) => {
+    const handleAccept = (senderClerkId: string, notificationId: string) => {
         if (!senderClerkId) {
             alert("Invalid sender id");
             return;
@@ -42,7 +45,10 @@ export const Notifications = ({
             },
             {
                 onSuccess: () => {
-                    // deleteNotification(notificationId);
+                    updateNotification({
+                        id: notificationId,
+                        status: "ACCEPTED",
+                    });
                     alert("Chat created successfully ✅");
                 },
                 onError: (err) =>
@@ -110,7 +116,7 @@ export const Notifications = ({
                                     className="flex items-center gap-3 px-4 py-3 border-b border-zinc-800 hover:bg-zinc-800/50"
                                 >
                                     <img
-                                        src={n.senderAvatar}
+                                        src={n.avatar}
                                         alt={n.senderName}
                                         className="w-10 h-10 rounded-full object-cover"
                                     />
@@ -126,7 +132,10 @@ export const Notifications = ({
                                         <button
                                             disabled={isCreating}
                                             onClick={() =>
-                                                handleAccept(n.senderClerkId)
+                                                handleAccept(
+                                                    n.senderClerkId,
+                                                    n.id,
+                                                )
                                             }
                                             className="text-green-400 hover:text-green-300 text-sm"
                                         >

@@ -80,7 +80,7 @@ const createNewChat = async (req: Request, res: Response) => {
                     },
                     AND: {
                         participants: {
-                            some: { userId: participants[0].id },
+                            some: { userId: dbParticipants[0].id },
                         },
                     },
                 },

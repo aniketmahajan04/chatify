@@ -167,9 +167,9 @@ const friendRequests = async (req: Request, res: Response) => {
         const friendRequests = await prismaClient.notifications.findMany({
             where: {
                 receiverId: user.id,
-                status: "Pending",
+                status: "pending",
             },
-            include: { sender: true, receiver: true },
+            include: { sender: true },
             orderBy: { createdAt: "desc" },
         });
 
@@ -177,13 +177,13 @@ const friendRequests = async (req: Request, res: Response) => {
         const enriched = await Promise.all(
             friendRequests.map(async (n) => {
                 // Validate that sender exists
-                if (!n.sender) {
-                    console.error(`Notification ${n.id} has no sender`);
-                    return null;
-                }
+                // if (!n.sender) {
+                //     console.error(`Notification ${n.id} has no sender`);
+                //     return null;
+                // }
 
                 let senderAvatar: string | null = null;
-                let senderName: string | null = n.sender.name ?? null;
+                let senderName: string | null = n.sender?.name ?? null;
                 try {
                     if (n.sender?.clerkId) {
                         const clerkUser = await clerkClient.users.getUser(
@@ -216,15 +216,13 @@ const friendRequests = async (req: Request, res: Response) => {
                     receiverId: n.receiverId,
                     senderClerkId: n.sender.clerkId,
                     // frontend-friendly fields
-                    senderName: senderName,
-                    senderAvatar: senderAvatar,
+                    senderName,
+                    senderAvatar,
                 };
             }),
         );
 
-        // Filter out any null entries (notification with missing senders)
-        const validRequests = enriched.filter(Boolean);
-        return res.json(validRequests);
+        return res.json(enriched);
     } catch (err: any) {
         console.error("Get user error:", err);
         res.status(500).json({ success: false, message: err.message });
@@ -268,7 +266,7 @@ const sendFriendRequest = async (req: Request, res: Response) => {
             data: {
                 senderId: user.id,
                 receiverId: receiverId,
-                status: "pending",
+                status: "PENDING",
             },
         });
 
