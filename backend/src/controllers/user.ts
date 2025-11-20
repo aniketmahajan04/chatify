@@ -176,12 +176,6 @@ const friendRequests = async (req: Request, res: Response) => {
         // Enrich each notification with sender's Clerk profile (e.g., avatar)
         const enriched = await Promise.all(
             friendRequests.map(async (n) => {
-                // Validate that sender exists
-                // if (!n.sender) {
-                //     console.error(`Notification ${n.id} has no sender`);
-                //     return null;
-                // }
-
                 let senderAvatar: string | null = null;
                 let senderName: string | null = n.sender?.name ?? null;
                 try {
@@ -285,4 +279,42 @@ const sendFriendRequest = async (req: Request, res: Response) => {
     }
 };
 
-export { login, profile, friendRequests, getAllUser, sendFriendRequest };
+const updateFriendRequestStatus = async (req: Request, res: Response) => {
+    try {
+        console.log("RAW PARAMS:", req.params);
+        console.log("RAW ID:", req.params.id);
+        console.log("BODY:", req.body);
+
+        const id = req.params;
+        const status = req.body;
+
+        if (!id || typeof id !== "string") {
+            return res.status(400).json({
+                message: "Invalid notification id",
+            });
+        }
+
+        if (!["PENDING", "ACCEPTED", "REJECTED"].includes(status)) {
+            return res.json(400).json({ message: "Invalid status." });
+        }
+
+        const updateNotificationStatus =
+            await prismaClient.notifications.update({
+                where: { id },
+                data: { status },
+            });
+
+        return res.status(200).json(updateNotificationStatus);
+    } catch (err: any) {
+        console.error("Update notification error:", err);
+        res.status(500).json({ message: err.message });
+    }
+};
+export {
+    login,
+    profile,
+    friendRequests,
+    getAllUser,
+    sendFriendRequest,
+    updateFriendRequestStatus,
+};

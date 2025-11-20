@@ -57,6 +57,10 @@ export const Notifications = ({
         );
     };
 
+    const handleReject = (notificationId: string) => {
+        updateNotification({ id: notificationId, status: "REJECTED" });
+    };
+
     return (
         <AnimatePresence>
             <motion.div
@@ -142,7 +146,7 @@ export const Notifications = ({
                                             Accept
                                         </button>
                                         <button
-                                            // onClick={() => onReject(n.id)}
+                                            onClick={() => handleReject(n.id)}
                                             className="text-red-400 hover:text-red-300 text-sm"
                                         >
                                             Reject
