@@ -281,14 +281,10 @@ const sendFriendRequest = async (req: Request, res: Response) => {
 
 const updateFriendRequestStatus = async (req: Request, res: Response) => {
     try {
-        console.log("RAW PARAMS:", req.params);
-        console.log("RAW ID:", req.params.id);
-        console.log("BODY:", req.body);
+        const id = req.params.id;
+        const { status } = req.body;
 
-        const id = req.params;
-        const status = req.body;
-
-        if (!id || typeof id !== "string") {
+        if (!id) {
             return res.status(400).json({
                 message: "Invalid notification id",
             });
