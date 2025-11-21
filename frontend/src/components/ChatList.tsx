@@ -4,6 +4,8 @@ import { FiSearch, FiPlus } from "react-icons/fi";
 import type { Chat } from "../pages/ChatPage";
 import { ActionModal } from "./ActionModel";
 import { ProfilePopup } from "./ProfilePopUp";
+import { useChats } from "../hooks/useChats";
+import { useUser } from "@clerk/clerk-react";
 
 // Dummy data
 const chatData = [
@@ -54,6 +56,7 @@ export const ChatsList = ({
   onCreateChat,
   onCreateGroup,
 }: Props) => {
+  const { user } = useUser();
   const [selectedProfile, setSelectedProfile] = useState<any | null>(null);
   const [search, setSearch] = useState("");
   const [selectedChatAction, setSelectedAction] = useState<any | null>(null);
@@ -62,9 +65,27 @@ export const ChatsList = ({
   );
   const [showDropdown, setShowDropdown] = useState(false);
 
-  const filteredChats = chatData.filter((chat) =>
-    chat.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const { data: chats, isLoading, error } = useChats()
+
+  if (isLoading) return <div className="text-white p-4">Loading chats...</div>;
+  if (error) return <div className="text-red-500 p-4">Failed to load chats</div>;
+
+
+  const filteredChats = chats?.filter((chat) => {
+    // chat.name?.toLowerCase().includes(search.toLowerCase()) ?? []
+    const otherUser = chat.participants.find((p: any) => p.userId !== user?.id)?.user;
+    const displayName = chat.isGroup ? chat.name : otherUser?.name ?? "Unknown user";
+
+    const avatar = chat.isGroup ? `/group.png` : otherUser?.avatar;
+
+    const lastMessage = chat.messages[0]?.content ?? "No messages yet";
+    const lastTime = chat.messages[0]?.createdAt ?? chat.updatedAt;
+
+
+    return {
+      ...chat, displayName, avatar, lastMessage, lastTime
+    }
+  });
 
   return (
     <section className="flex flex-col bg-[#18181B] text-[#E4E6EB] w-full border-r border-[#27272A] h-screen overflow-hidden">
@@ -131,6 +152,13 @@ export const ChatsList = ({
 
       {/* Chat List */}
       <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-[#27272A] scrollbar-track-transparent">
+
+        {filteredChats?.length === 0 && (
+          <div className="text-center text-gray-400 py-6">
+            No chats yet — click "+" to start one!
+          </div>
+        )}
+
         {filteredChats.map((chat) => (
           <motion.div
             key={chat.id}
@@ -147,7 +175,7 @@ export const ChatsList = ({
             <div className="flex items-center gap-3">
               <img
                 src={chat.avatar}
-                alt={chat.name}
+                alt={chat.displayName}
                 onClick={(e) => {
                   e.stopPropagation();
                   setSelectedProfile(chat);
