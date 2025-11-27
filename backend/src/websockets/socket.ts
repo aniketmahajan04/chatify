@@ -1,11 +1,36 @@
 import { Server } from "socket.io";
 import { verifyToken } from "@clerk/backend";
+import { prismaClient } from "../lib/db";
 
 // Track: userId → Set of socketIds
 export const userSocket = new Map<string, Set<string>>();
 
 // Track: socketId → userId
 export const socketUser = new Map<string, string>();
+
+// Track: chatId -> userId
+export const chatParticipants = new Map<string, Set<string>>();
+
+const addChatsInChatParticipants = (chatIds: string, participants: any) => {
+  if (!chatParticipants.has(chatIds)) {
+    chatParticipants.set(chatIds, new Set());
+  }
+
+  chatParticipants.get(chatIds)?.add(participants)
+}
+
+const getChatOfUser = async (userId: string) => {
+  const userAllChats = await prismaClient.chat.findMany({
+    where: {
+      participants: { some: { userId: userId } }
+    }
+  });
+  if (!userAllChats) {
+    return new Error("Unable find user chats!");
+  }
+
+  return userAllChats
+}
 
 const addSockets = (userId: string, socketId: string) => {
   if (!userSocket.has(userId)) {
@@ -67,6 +92,8 @@ export function socketServer(io: Server) {
     const userId = socket.data.userId;
     console.log(`socket connected: ${socket.id} user=${userId}`);
     addSockets(userId, socket.id);
+    const usersChat = getChatOfUser(userId);
+    addChatsInChatParticipants(usersChat[id]);
 
 
 
