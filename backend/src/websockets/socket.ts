@@ -11,23 +11,24 @@ export const socketUser = new Map<string, string>();
 // Track: chatId -> userId
 export const chatParticipants = new Map<string, Set<string>>();
 
-const addChatsInChatParticipants = (chatIds: string, participants: any) => {
-  if (!chatParticipants.has(chatIds)) {
-    chatParticipants.set(chatIds, new Set());
+const addChatsInChatParticipants = (chatId: string, userId: string) => {
+  if (!chatParticipants.has(chatId)) {
+    chatParticipants.set(chatId, new Set());
   }
 
-  chatParticipants.get(chatIds)?.add(participants)
+  chatParticipants.get(chatId)?.add(userId);
 }
 
 const getChatOfUser = async (userId: string) => {
   const userAllChats = await prismaClient.chat.findMany({
     where: {
       participants: { some: { userId: userId } }
+    },
+    include: {
+
+      participants: { include: { user: true } }
     }
   });
-  if (!userAllChats) {
-    return new Error("Unable find user chats!");
-  }
 
   return userAllChats
 }
@@ -88,18 +89,30 @@ export function socketServer(io: Server) {
       return next(new Error("Unauthorized"));
     }
   });
-  io.on("connection", (socket) => {
+  io.on("connection", async (socket) => {
     const userId = socket.data.userId;
     console.log(`socket connected: ${socket.id} user=${userId}`);
     addSockets(userId, socket.id);
-    const usersChat = getChatOfUser(userId);
-    addChatsInChatParticipants(usersChat[id]);
+
+    const usersChat = await getChatOfUser(userId);
+
+    for (const chat of usersChat) {
+      addChatsInChatParticipants(chat.id, userId);
+    }
 
 
 
     socket.on("disconnect", (reason) => {
       console.log(`socket disconnect: ${socket.id} user=${userId} reason=${reason}`)
       removeSockets(socket.id);
+
+      for (const chat of usersChat) {
+        chatParticipants.get(chat.id)?.delete(userId);
+
+        if (chatParticipants.get(chat.id)?.size === 0) {
+          chatParticipants.delete(chat.id);
+        }
+      }
     });
 
     socket.emit("connected", {
