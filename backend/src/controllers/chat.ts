@@ -67,7 +67,7 @@ const createNewChat = async (req: Request, res: Response) => {
         }
 
         const prismaUser = await prismaClient.user.findUnique({
-            where: { clerkId: user.id },
+            where: { id: user.id },
         });
 
         if (!prismaUser) {

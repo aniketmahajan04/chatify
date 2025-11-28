@@ -120,7 +120,7 @@ export const Notifications = ({
                                     className="flex items-center gap-3 px-4 py-3 border-b border-zinc-800 hover:bg-zinc-800/50"
                                 >
                                     <img
-                                        src={n.avatar}
+                                        src={n.senderAvatar}
                                         alt={n.senderName}
                                         className="w-10 h-10 rounded-full object-cover"
                                     />

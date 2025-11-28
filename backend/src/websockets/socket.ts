@@ -1,6 +1,15 @@
 import { Server } from "socket.io";
 import { verifyToken } from "@clerk/backend";
 import { prismaClient } from "../lib/db";
+import { sendMessageToChat } from "./messageRouter";
+
+interface MsgPayload {
+  id: string,
+  chatId: string,
+  senderId: string,
+  content: string,
+  createdAt: Date,
+}
 
 // Track: userId → Set of socketIds
 export const userSocket = new Map<string, Set<string>>();
@@ -24,10 +33,7 @@ const getChatOfUser = async (userId: string) => {
     where: {
       participants: { some: { userId: userId } }
     },
-    include: {
-
-      participants: { include: { user: true } }
-    }
+    select: { id: true }
   });
 
   return userAllChats
@@ -101,12 +107,33 @@ export function socketServer(io: Server) {
     }
 
 
+    socket.on("chat:message", async (msg) => {
+      if(!msg.chatId || !msg.content) return ;
 
-    socket.on("disconnect", (reason) => {
-      console.log(`socket disconnect: ${socket.id} user=${userId} reason=${reason}`)
+      const savedMessage = await prismaClient.message.create({
+        data: {
+          content: msg.content,
+          chatId: msg.chatId,
+          senderId: userId
+        }
+      });
+
+      const messagePayload = {
+        id: savedMessage.id,
+        content: savedMessage.content,
+        senderId: savedMessage.senderId,
+        chatId: savedMessage.chatId,
+        createdAt: savedMessage.createdAt,
+      };
+
+      sendMessageToChat(io, msg.chatId, messagePayload);
+    })
+
+    socket.on("disconnect", async () => {
+      const freshChats = await getChatOfUser(userId);
       removeSockets(socket.id);
 
-      for (const chat of usersChat) {
+      for (const chat of freshChats) {
         chatParticipants.get(chat.id)?.delete(userId);
 
         if (chatParticipants.get(chat.id)?.size === 0) {

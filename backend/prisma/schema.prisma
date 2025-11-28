@@ -55,7 +55,7 @@ model Chat {
 model ChatParticipant {
     id     String @id @default(auto()) @map("_id") @db.ObjectId
     chatId String @db.ObjectId
-    userId String @db.ObjectId
+    userId String
     role   String @default("member") // can be "admin", "member"
 
     chat Chat @relation(fields: [chatId], references: [id])

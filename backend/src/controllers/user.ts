@@ -167,7 +167,7 @@ const friendRequests = async (req: Request, res: Response) => {
         const friendRequests = await prismaClient.notifications.findMany({
             where: {
                 receiverId: user.id,
-                status: "pending",
+                status: "PENDING",
             },
             include: { sender: true },
             orderBy: { createdAt: "desc" },
