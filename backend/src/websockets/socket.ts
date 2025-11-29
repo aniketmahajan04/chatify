@@ -71,14 +71,12 @@ export function socketServer(io: Server) {
         socket.handshake.auth?.token ||
         socket.handshake.headers["authorization"]?.toString()
           .replace(/^Bearer\s+/, "");
-      console.log("Provided token: ", token);
 
       if (!token) return next(new Error("Auth token not provided!"));
 
       const payload = await verifyToken(token, { secretKey: process.env.CLERK_SECRET_KEY }) as any;
 
       const userId = payload.sub;
-      console.log(userId);
 
       if (!userId) return next(new Error("Unauthorized: invalid token"));
 
@@ -108,25 +106,31 @@ export function socketServer(io: Server) {
 
 
     socket.on("chat:message", async (msg) => {
-      if(!msg.chatId || !msg.content) return ;
+      console.log(msg);
+      if (!msg.chatId || !msg.content) return;
+      try {
 
-      const savedMessage = await prismaClient.message.create({
-        data: {
-          content: msg.content,
-          chatId: msg.chatId,
-          senderId: userId
-        }
-      });
+        const savedMessage = await prismaClient.message.create({
+          data: {
+            content: msg.content,
+            chatId: msg.chatId,
+            senderId: userId
+          }
+        });
+        console.log(savedMessage);
 
-      const messagePayload = {
-        id: savedMessage.id,
-        content: savedMessage.content,
-        senderId: savedMessage.senderId,
-        chatId: savedMessage.chatId,
-        createdAt: savedMessage.createdAt,
-      };
+        const messagePayload = {
+          id: savedMessage.id,
+          content: savedMessage.content,
+          senderId: savedMessage.senderId,
+          chatId: savedMessage.chatId,
+          createdAt: savedMessage.createdAt,
+        };
 
-      sendMessageToChat(io, msg.chatId, messagePayload);
+        sendMessageToChat(io, msg.chatId, messagePayload);
+      } catch (err) {
+        console.error("Prisma create failed ", err);
+      }
     })
 
     socket.on("disconnect", async () => {
