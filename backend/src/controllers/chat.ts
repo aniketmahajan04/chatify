@@ -30,7 +30,7 @@ const getAllChats = async (req: Request, res: Response) => {
         const allChats = await prismaClient.chat.findMany({
             where: {
                 participants: {
-                    some: { userId: prismaUser.id },
+                    some: { userId: prismaUser.clerkId },
                 },
             },
             include: {
@@ -91,7 +91,7 @@ const createNewChat = async (req: Request, res: Response) => {
 
         const dbParticipants = await prismaClient.user.findMany({
             where: { clerkId: { in: validParticipants } },
-            select: { id: true },
+            select: { clerkId: true },
         });
 
         if (!isGroup && dbParticipants.length === 1) {
@@ -106,7 +106,7 @@ const createNewChat = async (req: Request, res: Response) => {
                     },
                     AND: {
                         participants: {
-                            some: { userId: dbParticipants[0].id },
+                            some: { userId: dbParticipants[0].clerkId },
                         },
                     },
                 },
@@ -121,9 +121,9 @@ const createNewChat = async (req: Request, res: Response) => {
                 isGroup,
                 participants: {
                     create: [
-                        { userId: prismaUser.id, role: "admin" },
+                        { userId: prismaUser.clerkId, role: "admin" },
                         ...dbParticipants.map((p) => ({
-                            userId: p.id,
+                            userId: p.clerkId,
                         })),
                     ],
                 },

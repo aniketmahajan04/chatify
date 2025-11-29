@@ -26,7 +26,7 @@ model User {
 
   sentNotifications     Notifications[]   @relation("SentNotifications")
   receivedNotifications Notifications[]   @relation("ReceivedNotifications")
-  ChatParticipant       ChatParticipant[]
+  ChatParticipant       ChatParticipant[] @relation("UserClerkRelation")
   Message               Message[]
 }
 
@@ -59,7 +59,7 @@ model ChatParticipant {
   role   String @default("member") // can be "admin", "member"
 
   chat Chat @relation(fields: [chatId], references: [id])
-  user User @relation(fields: [userId], references: [clerkId])
+  user User @relation("UserClerkRelation", fields: [userId], references: [clerkId])
 
   @@unique([chatId, userId]) // Prevent duplicate entries
 }
