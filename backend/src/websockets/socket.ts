@@ -31,9 +31,11 @@ const addChatsInChatParticipants = (chatId: string, userId: string) => {
 const getChatOfUser = async (userId: string) => {
   const userAllChats = await prismaClient.chat.findMany({
     where: {
-      participants: { some: { userId: userId } }
+      participants: { some: { userId } }
     },
-    select: { id: true }
+    include: {
+      participants: { select: { userId: true } }
+    }
   });
 
   return userAllChats
@@ -101,12 +103,16 @@ export function socketServer(io: Server) {
     const usersChat = await getChatOfUser(userId);
 
     for (const chat of usersChat) {
-      addChatsInChatParticipants(chat.id, userId);
+      for (const participant of chat.participants) {
+
+        addChatsInChatParticipants(chat.id, participant.userId);
+      }
     }
 
 
     socket.on("chat:message", async (msg) => {
       console.log(msg);
+      console.log("chatParticipants NOW:", chatParticipants);
       if (!msg.chatId || !msg.content) return;
       try {
 
@@ -138,9 +144,12 @@ export function socketServer(io: Server) {
       removeSockets(socket.id);
 
       for (const chat of freshChats) {
-        chatParticipants.get(chat.id)?.delete(userId);
+        const set = chatParticipants.get(chat.id);
+        if (!set) return;
 
-        if (chatParticipants.get(chat.id)?.size === 0) {
+        set.delete(userId);
+
+        if (set.size === 0) {
           chatParticipants.delete(chat.id);
         }
       }
