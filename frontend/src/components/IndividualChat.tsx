@@ -41,18 +41,6 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
             sender: "other",
             time: "2:42 PM",
         },
-        {
-            id: 2,
-            text: "I'm good! Working on the project 🚀",
-            sender: "me",
-            time: "2:43 PM",
-        },
-        {
-            id: 3,
-            text: "That’s awesome! Can’t wait to see it.",
-            sender: "other",
-            time: "2:45 PM",
-        },
     ]);
 
     const [newMsg, setNewMsg] = useState("");
@@ -64,10 +52,20 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
     });
     const [selectedMessage, setSelectedMessage] = useState<any | null>(null);
 
+    // <<< NEW: Get socket and user Info
+    const { socket, isConnected } = useSocket();
+    const { user } = useUser();
+    const currentUser = user?.id;
+
     // Scroll to bottom on new message
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
+
+    // Listener for incomming messages
+    useEffect(() => {
+        if (!socket || !chat.id) return;
+    }, []);
 
     const handleSend = () => {
         if (!newMsg.trim()) return;

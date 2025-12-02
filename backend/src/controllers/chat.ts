@@ -147,4 +147,52 @@ const deleteChat = (req: Request, res: Response) => {
         res.status(500).json({ success: false, msg: err.message });
     }
 };
-export { getAllChats, createNewChat, deleteChat };
+
+const getMessagesOfChatById = async (req: Request, res: Response) => {
+    try {
+        const { chatId } = req.params;
+        const currentUser = await getCurrentUser(req, res);
+
+        if (!currentUser) {
+            return res
+                .status(401)
+                .json({ success: false, message: "Unauthorized" });
+        }
+
+        const chat = await prismaClient.chat.findUnique({
+            where: {
+                id: chatId,
+            },
+            include: { participants: true },
+        });
+
+        if (
+            !chat ||
+            !chat.participants.some((p) => p.userId === currentUser.clerkId)
+        ) {
+            return res.status(403).json({
+                success: false,
+                message: "Not authorized to view this chat",
+            });
+        }
+
+        const messages = await prismaClient.message.findMany({
+            where: { chatId: chatId },
+            orderBy: { createdAt: "asc" },
+            select: {
+                id: true,
+                content: true,
+                senderId: true,
+                chatId: true,
+                createdAt: true,
+            },
+        });
+
+        return res.json(messages);
+    } catch (err: any) {
+        console.error("Fetching chat messages error: ", err);
+        res.status(500).json({ success: false, msg: err.message });
+    }
+};
+
+export { getAllChats, createNewChat, deleteChat, getMessagesOfChatById };
