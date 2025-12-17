@@ -16,11 +16,10 @@ interface ReceivedMessage {
 }
 
 interface FrontendMessage {
-    id: string | number;
+    id: string;
     text: string;
     sender: "me" | "other";
     time: string;
-    isTemp?: boolean;
 }
 
 type Props = {
@@ -34,15 +33,7 @@ type Props = {
 };
 
 export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
-    const [messages, setMessages] = useState([
-        {
-            id: 1,
-            text: "Hey there! How are you?",
-            sender: "other",
-            time: "2:42 PM",
-        },
-    ]);
-
+    const [messages, setMessages] = useState<FrontendMessage[]>([]);
     const [newMsg, setNewMsg] = useState("");
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
     const [actionModelOpen, setActionModelOpen] = useState(false);
@@ -73,23 +64,72 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
     };
 
     useEffect(() => {
+        if (!chat.id || !currentUser) return;
+
+        let isMounted = true;
+
+        const fetchMessages = async () => {
+            try {
+                const res = await fetch(
+                    `http://localhost:3000/chat/${chat.id}/messages`,
+                    {
+                        credentials: "include",
+                    },
+                );
+
+                if (!res.ok) {
+                    console.error("Failed to fetch messages");
+                    return;
+                }
+
+                const data: ReceivedMessage[] = await res.json();
+
+                if (!isMounted) return;
+
+                setMessages(
+                    data.map((msg) => ({
+                        id: msg.id,
+                        text: msg.content,
+                        sender: msg.senderId === currentUser ? "me" : "other",
+                        time: new Date(msg.createdAt).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        }),
+                    })),
+                );
+            } catch (err) {
+                console.error("Error fetching messages:", err);
+            }
+        };
+        fetchMessages();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [chat.id, currentUser]);
+
+    useEffect(() => {
         if (!socket || !chat.id || !currentUser) return;
 
         const onMessage = (msg: ReceivedMessage) => {
             if (msg.chatId !== chat.id) return;
 
-            setMessages((prev: any) => [
-                ...prev,
-                {
-                    id: msg.id,
-                    text: msg.content,
-                    sender: msg.senderId === currentUser ? "me" : "other",
-                    time: new Date(msg.createdAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                    }),
-                },
-            ]);
+            setMessages((prev: any) => {
+                if (prev.some((m: any) => m.id === msg.id)) return prev;
+
+                return [
+                    ...prev,
+                    {
+                        id: msg.id,
+                        text: msg.content,
+                        sender: msg.senderId === currentUser ? "me" : "other",
+                        time: new Date(msg.createdAt).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        }),
+                    },
+                ];
+            });
         };
 
         socket.on("chat:message:receive", onMessage);
