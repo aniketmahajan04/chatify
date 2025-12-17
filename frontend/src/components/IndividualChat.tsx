@@ -25,7 +25,7 @@ interface FrontendMessage {
 
 type Props = {
     chat: {
-        id: string | number;
+        id: string;
         name: string;
         avatar: string;
     };
@@ -62,19 +62,42 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
-    // Listener for incomming messages
-    useEffect(() => {
-        if (!socket || !chat.id) return;
-    }, []);
-
     const handleSend = () => {
-        if (!newMsg.trim()) return;
-        setMessages([
-            ...messages,
-            { id: Date.now(), text: newMsg, sender: "me", time: "Now" },
-        ]);
+        if (!newMsg.trim() || !socket || !isConnected) return;
+        socket.emit("chat:message", {
+            chatId: chat.id,
+            content: newMsg,
+        });
+
         setNewMsg("");
     };
+
+    useEffect(() => {
+        if (!socket || !chat.id || !currentUser) return;
+
+        const onMessage = (msg: ReceivedMessage) => {
+            if (msg.chatId !== chat.id) return;
+
+            setMessages((prev: any) => [
+                ...prev,
+                {
+                    id: msg.id,
+                    text: msg.content,
+                    sender: msg.senderId === currentUser ? "me" : "other",
+                    time: new Date(msg.createdAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                    }),
+                },
+            ]);
+        };
+
+        socket.on("chat:message:receive", onMessage);
+
+        return () => {
+            socket.off("chat:message:receive", onMessage);
+        };
+    }, [socket, chat.id, currentUser]);
 
     const handleRightClick = (e: React.MouseEvent, message: any) => {
         e.preventDefault();

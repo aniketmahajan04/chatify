@@ -7,27 +7,27 @@ import { SSOCallbackPage } from "./pages/SSOCallbackPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage />}></Route>
-        <Route path="/login" element={<LoginPage />}></Route>
-        <Route path="/register" element={<SignupPage />}></Route>
-        <Route
-          path="/sso-callback"
-          element={<SSOCallbackPage />}
-        ></Route>
-        <Route
-          path="/chat"
-          element={
-            <ProtectedRoute>
-              <ChatPage />
-            </ProtectedRoute>
-          }
-        ></Route>
-      </Routes>
-    </BrowserRouter>
-  );
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<HomePage />}></Route>
+                <Route path="/login" element={<LoginPage />}></Route>
+                <Route path="/register" element={<SignupPage />}></Route>
+                <Route
+                    path="/sso-callback"
+                    element={<SSOCallbackPage />}
+                ></Route>
+                <Route
+                    path="/chat"
+                    element={
+                        <ProtectedRoute>
+                            <ChatPage />
+                        </ProtectedRoute>
+                    }
+                ></Route>
+            </Routes>
+        </BrowserRouter>
+    );
 }
 
 export default App;

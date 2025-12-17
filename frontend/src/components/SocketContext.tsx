@@ -4,6 +4,7 @@ import React, {
     useEffect,
     useState,
     useMemo,
+    useRef,
 } from "react";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "@clerk/clerk-react";
@@ -25,15 +26,22 @@ export const useSocket = () => useContext(SocketContext);
 // The provider component
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     const { getToken, userId } = useAuth();
-    const [socket, setSocket] = useState<Socket | null>(null);
+    const socketRef = useRef<Socket | null>(null);
     const [isConnected, setIsConnected] = useState(false);
 
     useEffect(() => {
         // Prevent connection if the user is not logged in
         if (!userId) return;
 
+        let isMounted = true;
+
         const connectSocket = async () => {
             const token = await getToken();
+
+            if (!token || !isMounted) return;
+
+            // Prevent duplicate connections
+            if (socketRef.current) return;
 
             const newSocket = io(
                 import.meta.env.VITE_BACKEND_URL || "http://localhost:3000",
@@ -42,6 +50,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
                     auth: {
                         token: token,
                     },
+                    autoConnect: true,
                 },
             );
 
@@ -63,23 +72,29 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
                 console.log("Server welcome:", data.message);
             });
 
-            setSocket(newSocket);
+            socketRef.current = newSocket;
         };
 
         connectSocket();
 
         // Cleanup function
         return () => {
-            if (socket) {
-                socket.disconnect();
-                setSocket(null);
+            isMounted = false;
+
+            if (socketRef) {
+                socketRef.current?.off(); // Remove all listeners
+                socketRef.current?.disconnect();
+                socketRef.current = null;
             }
         };
     }, [userId, getToken]);
 
     const contextValue = useMemo(
-        () => ({ socket, isConnected }),
-        [socket, isConnected],
+        () => ({
+            socket: socketRef.current,
+            isConnected,
+        }),
+        [isConnected],
     );
 
     return (
