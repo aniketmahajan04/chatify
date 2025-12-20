@@ -1,26 +1,24 @@
 import { useState } from "react";
 import { X, Search, UserPlus, Check } from "lucide-react";
+import { useAllUsers } from "../hooks/useAllUsers";
+import { useCreateChat } from "../hooks/useChats";
 
 interface CreateGroupDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  users: { id: number; name: string; avatar: string; bio: string }[];
-  onCreate: (group: { name: string; members: any[] }) => void;
 }
 
-export const CreateGroupDrawer = ({
-  isOpen,
-  onClose,
-  users,
-  onCreate,
-}: CreateGroupDrawerProps) => {
+export const CreateGroupDrawer = ({ isOpen, onClose }: CreateGroupDrawerProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
   const [groupName, setGroupName] = useState("");
 
+  const { data: users = [], isLoading, isError } = useAllUsers();
+  const { mutate: createChat, isPending: isCreating } = useCreateChat();
+
   if (!isOpen) return null;
 
-  const filteredUsers = users.filter((u) =>
+  const filteredUsers = users.filter((u: any) =>
     u.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -33,13 +31,41 @@ export const CreateGroupDrawer = ({
   };
 
   const handleCreateGroup = () => {
-    if (!groupName.trim()) return alert("Please enter a group name");
-    if (selectedUsers.length < 2)
-      return alert("Select at least two users to create a group");
-    onCreate({ name: groupName, members: selectedUsers });
-    setGroupName("");
-    setSelectedUsers([]);
-    onClose();
+    if (!groupName.trim()) {
+      alert("Please enter a group name");
+      return;
+    }
+    if (selectedUsers.length < 2) {
+      alert("Select at least two users to create a group");
+      return;
+    }
+
+    const receiverIds = selectedUsers
+      .map((u) => u.clerkId)
+      .filter(Boolean);
+
+    if (receiverIds.length < 2) {
+      alert("Unable to resolve selected users, please try again.");
+      return;
+    }
+
+    createChat(
+      {
+        receiverIds,
+        isGroup: true,
+        name: groupName,
+      },
+      {
+        onSuccess: () => {
+          setGroupName("");
+          setSelectedUsers([]);
+          onClose();
+        },
+        onError: (err: any) => {
+          alert(err.message || "Failed to create group");
+        },
+      }
+    );
   };
 
   return (
@@ -78,7 +104,15 @@ export const CreateGroupDrawer = ({
 
         {/* User List */}
         <div className="flex-1 overflow-y-auto mt-3">
-          {filteredUsers.map((user) => {
+          {isLoading && (
+            <p className="text-gray-400 px-4 py-2">Loading users...</p>
+          )}
+          {isError && !isLoading && (
+            <p className="text-red-500 px-4 py-2">Failed to load users</p>
+          )}
+          {!isLoading &&
+            !isError &&
+            filteredUsers.map((user: any) => {
             const isSelected = selectedUsers.some((u) => u.id === user.id);
             return (
               <div
@@ -142,9 +176,10 @@ export const CreateGroupDrawer = ({
         <div className="p-4 border-t border-[#27272A]">
           <button
             onClick={handleCreateGroup}
-            className="w-full bg-[#2563EB] text-white py-2 rounded-xl hover:bg-[#1D4ED8] transition-all"
+            disabled={isCreating}
+            className="w-full bg-[#2563EB] text-white py-2 rounded-xl hover:bg-[#1D4ED8] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Create Group
+            {isCreating ? "Creating..." : "Create Group"}
           </button>
         </div>
       </div>

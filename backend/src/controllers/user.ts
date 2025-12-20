@@ -108,6 +108,7 @@ const getAllUser = async (req: Request, res: Response) => {
       },
       select: {
         id: true,
+        clerkId: true,
         name: true,
         avatar: true,
         bio: true,

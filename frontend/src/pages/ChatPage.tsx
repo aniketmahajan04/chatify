@@ -20,27 +20,6 @@ export type Chat = {
     time: string;
     unread: number;
 };
-const dummyUsers = [
-    {
-        id: 1,
-        name: "Emma Watson",
-        avatar: "https://randomuser.me/api/portraits/women/12.jpg",
-        bio: "Frontend Dev",
-    },
-    {
-        id: 2,
-        name: "John Doe",
-        avatar: "https://randomuser.me/api/portraits/men/14.jpg",
-        bio: "Backend Engineer",
-    },
-    {
-        id: 3,
-        name: "Ava Smith",
-        avatar: "https://randomuser.me/api/portraits/women/21.jpg",
-        bio: "UI/UX Designer",
-    },
-];
-
 export const ChatPage = () => {
     const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
     const [activeMenu, setActiveMenu] = useState(1); // 1 = Chats, 2 = Calls
@@ -191,8 +170,6 @@ export const ChatPage = () => {
                 <CreateGroupDrawer
                     isOpen={isGroupDrawerOpen}
                     onClose={() => setIsGroupDrawerOpen(false)}
-                    onCreate={(group) => console.log("new group", group)}
-                    users={dummyUsers}
                 />
             )}
         </div>
