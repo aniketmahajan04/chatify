@@ -27,6 +27,7 @@ type Props = {
     id: string;
     name: string;
     avatar: string;
+    otherUserId: string;
   };
   onBack?: () => void; // optional
   onOpenProfile?: () => void;
@@ -53,11 +54,11 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
     if (!socket) return;
 
     const handleOnline = ({ userId }: { userId: string }) => {
-      if (userId === chat.id) setIsOnline(true);
+      if (userId === chat.otherUserId) setIsOnline(true);
     };
 
     const handleOffline = ({ userId }: { userId: string }) => {
-      if (userId === chat.id) setIsOnline(false);
+      if (userId === chat.otherUserId) setIsOnline(false);
     };
 
     socket.on("user:online", handleOnline);
@@ -67,7 +68,7 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
       socket.off("user:online", handleOnline);
       socket.off("user:offline", handleOffline);
     };
-  }, [socket, chat.id]);
+  }, [socket, chat.id, chat.otherUserId]);
 
   // Scroll to bottom on new message
   useEffect(() => {

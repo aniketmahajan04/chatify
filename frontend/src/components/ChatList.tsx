@@ -23,25 +23,27 @@ export const ChatsList = ({
   const [search, setSearch] = useState("");
   const [selectedChatAction, setSelectedAction] = useState<any | null>(null);
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
-    null,
+    null
   );
   const [showDropdown, setShowDropdown] = useState(false);
 
   const { data: chats, isLoading, error } = useChats();
 
-  if (isLoading)
-    return <div className="text-white p-4">Loading chats...</div>;
+  if (isLoading) return <div className="text-white p-4">Loading chats...</div>;
   if (error)
     return <div className="text-red-500 p-4">Failed to load chats</div>;
 
   const filteredChats = chats?.map((chat) => {
     // chat.name?.toLowerCase().includes(search.toLowerCase()) ?? []
-    const otherUser = chat.participants.find(
-      (p) => p.userId !== user?.id,
-    )?.user;
+    const otherChatParticipant = chat.participants.find(
+      (p) => p.userId !== user?.id
+    );
+
+    const otherUser = otherChatParticipant?.user;
+
     const displayName = chat.isGroup
       ? chat.name
-      : (otherUser?.name ?? "Unknown user");
+      : otherUser?.name ?? "Unknown user";
 
     const avatar = chat.isGroup ? `/group.png` : otherUser?.avatar;
 
@@ -54,6 +56,8 @@ export const ChatsList = ({
       avatar,
       lastMessage,
       lastTime,
+
+      otherUserId: otherChatParticipant?.userId,
     };
   });
 
@@ -163,9 +167,7 @@ export const ChatsList = ({
 
             {/* Right section (Time + Unread badge) */}
             <div className="flex flex-col items-end justify-between h-12">
-              <span className="text-xs text-gray-400">
-                {chat.time}
-              </span>
+              <span className="text-xs text-gray-400">{chat.time}</span>
               {chat.unread && chat.unread > 0 && (
                 <div className="bg-[#A2A970] text-[#11111b] text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mt-1">
                   {chat.unread}
@@ -190,24 +192,15 @@ export const ChatsList = ({
             actions={[
               {
                 label: "Mark as Read",
-                onClick: () =>
-                  console.log("Read", selectedChatAction.id),
+                onClick: () => console.log("Read", selectedChatAction.id),
               },
               {
                 label: "Forward",
-                onClick: () =>
-                  console.log(
-                    "Forward",
-                    selectedChatAction.id,
-                  ),
+                onClick: () => console.log("Forward", selectedChatAction.id),
               },
               {
                 label: "Delete",
-                onClick: () =>
-                  console.log(
-                    "Delete",
-                    selectedChatAction.id,
-                  ),
+                onClick: () => console.log("Delete", selectedChatAction.id),
                 destructive: true,
               },
             ]}
