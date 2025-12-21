@@ -40,9 +40,9 @@ const addSockets = (userId: string, socketId: string) => {
   socketUser.set(socketId, userId);
 };
 
-const removeSockets = (socketId: string) => {
+const removeSockets = (socketId: string): boolean => {
   const userId = socketUser.get(socketId);
-  if (!userId) return;
+  if (!userId) return false;
 
   const sockets = userSocket.get(userId);
   if (sockets) {
@@ -50,10 +50,12 @@ const removeSockets = (socketId: string) => {
     // if user has no sockets left, remove them from userSocket
     if (sockets?.size === 0) {
       userSocket.delete(userId);
+    return true;
     }
   }
 
   socketUser.delete(socketId);
+  return false;
 };
 
 export function socketServer(io: Server) {
@@ -90,6 +92,7 @@ export function socketServer(io: Server) {
 
     const usersChat = await getChatOfUser(userId);
 
+    io.emit("user:online", { userId });
     for (const chat of usersChat) {
       socket.join(chat.id);
     }
@@ -132,7 +135,10 @@ export function socketServer(io: Server) {
     );
 
     socket.on("disconnect", async () => {
-      removeSockets(socket.id);
+      const isOffline = removeSockets(socket.id);
+      if(isOffline) {
+        io.emit("user:offline", { userId });
+      }
     });
 
     socket.emit("connected", {
