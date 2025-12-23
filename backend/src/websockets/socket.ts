@@ -17,7 +17,6 @@ export const userSocket = new Map<string, Set<string>>();
 // Track: socketId → userId
 export const socketUser = new Map<string, string>();
 
-
 const getChatOfUser = async (userId: string) => {
   const userAllChats = await prismaClient.chat.findMany({
     where: {
@@ -50,7 +49,7 @@ const removeSockets = (socketId: string): boolean => {
     // if user has no sockets left, remove them from userSocket
     if (sockets?.size === 0) {
       userSocket.delete(userId);
-    return true;
+      return true;
     }
   }
 
@@ -92,13 +91,16 @@ export function socketServer(io: Server) {
 
     const usersChat = await getChatOfUser(userId);
 
-    io.emit("user:online", { userId });
+    // Store chats in socket data for later use
+    socket.data.userChats = usersChat;
+
+    // Emit online status only to users in the same chats
     for (const chat of usersChat) {
       socket.join(chat.id);
+      // Notify all participants in this chat that this user is online
+      io.to(chat.id).emit("user:online", { userId });
     }
-    console.log(
-      `User ${userId} joined rooms: ${[...socket.rooms].join(", ")}`,
-    );
+    console.log(`User ${userId} joined rooms: ${[...socket.rooms].join(", ")}`);
 
     socket.on(
       "chat:message",
@@ -123,21 +125,28 @@ export function socketServer(io: Server) {
           };
 
           // sendMessageToChat(io, msg.chatId, messagePayload);
-          io.to(msg.chatId).emit(
-            "chat:message:receive",
-            messagePayload,
-          );
+          io.to(msg.chatId).emit("chat:message:receive", messagePayload);
           console.log(`Message sent to room ${msg.chatId}`);
         } catch (err) {
           console.error("Prisma create failed ", err);
         }
-      },
+      }
     );
+
+    // Handler to check if a user is online
+    socket.on("user:check:online", (data: { userId: string }) => {
+      const isOnline = userSocket.has(data.userId);
+      socket.emit("user:status", { userId: data.userId, isOnline });
+    });
 
     socket.on("disconnect", async () => {
       const isOffline = removeSockets(socket.id);
-      if(isOffline) {
-        io.emit("user:offline", { userId });
+      if (isOffline) {
+        // Use stored chats to avoid extra database query
+        const usersChat = socket.data.userChats || [];
+        for (const chat of usersChat) {
+          io.to(chat.id).emit("user:offline", { userId });
+        }
       }
     });
 

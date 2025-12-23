@@ -51,7 +51,10 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
   const [isOnline, setIsOnline] = useState(false);
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !chat.otherUserId) return;
+
+    // Check initial online status when component mounts
+    socket.emit("user:check:online", { userId: chat.otherUserId });
 
     const handleOnline = ({ userId }: { userId: string }) => {
       if (userId === chat.otherUserId) setIsOnline(true);
@@ -61,14 +64,26 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
       if (userId === chat.otherUserId) setIsOnline(false);
     };
 
+    const handleStatus = ({
+      userId,
+      isOnline: status,
+    }: {
+      userId: string;
+      isOnline: boolean;
+    }) => {
+      if (userId === chat.otherUserId) setIsOnline(status);
+    };
+
     socket.on("user:online", handleOnline);
     socket.on("user:offline", handleOffline);
+    socket.on("user:status", handleStatus);
 
     return () => {
       socket.off("user:online", handleOnline);
       socket.off("user:offline", handleOffline);
+      socket.off("user:status", handleStatus);
     };
-  }, [socket, chat.id, chat.otherUserId]);
+  }, [socket, chat.otherUserId]);
 
   // Scroll to bottom on new message
   useEffect(() => {
