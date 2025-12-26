@@ -42,7 +42,8 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
     x: 0,
     y: 0,
   });
-  const [selectedMessage, setSelectedMessage] = useState<any | null>(null);
+  const [selectedMessage, setSelectedMessage] =
+    useState<FrontendMessage | null>(null);
 
   // <<< NEW: Get socket and user Info
   const { socket, isConnected } = useSocket();
@@ -50,7 +51,8 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
   const currentUser = user?.id;
   const [isOnline, setIsOnline] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const typingTimeout = useRef<NodeJS.Timeout | null>(null);
+  const [otherTyping, setOtherTyping] = useState(false);
+  const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!socket || !chat.otherUserId) return;
@@ -148,13 +150,33 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
   }, [chat.id, currentUser]);
 
   useEffect(() => {
+    if (!socket) return;
+
+    const onTypingStart = ({ userId }: { userId: string }) => {
+      if (userId !== currentUser) setOtherTyping(true);
+    };
+
+    const onTypingStop = ({ userId }: { userId: string }) => {
+      if (userId !== currentUser) setOtherTyping(false);
+    };
+
+    socket.on("typing:start", onTypingStart);
+    socket.on("typing:stop", onTypingStop);
+
+    return () => {
+      socket.off("typing:start", onTypingStart);
+      socket.off("typing:stop", onTypingStop);
+    };
+  }, [socket, currentUser]);
+
+  useEffect(() => {
     if (!socket || !chat.id || !currentUser) return;
 
     const onMessage = (msg: ReceivedMessage) => {
       if (msg.chatId !== chat.id) return;
 
-      setMessages((prev: any) => {
-        if (prev.some((m: any) => m.id === msg.id)) return prev;
+      setMessages((prev: FrontendMessage[]) => {
+        if (prev.some((m: FrontendMessage) => m.id === msg.id)) return prev;
 
         return [
           ...prev,
@@ -178,7 +200,7 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
     };
   }, [socket, chat.id, currentUser]);
 
-  const handleRightClick = (e: React.MouseEvent, message: any) => {
+  const handleRightClick = (e: React.MouseEvent, message: FrontendMessage) => {
     e.preventDefault();
     setSelectedMessage(message);
     setActionModelPosition({ x: e.clientX, y: e.clientY });
@@ -255,6 +277,9 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
         ))}
         <div ref={messagesEndRef} />
       </div>
+      {otherTyping && (
+        <p className="text-xs text-gray-400 px-4 pb-1">typing...</p>
+      )}
 
       {/* Input */}
       <div className="flex items-center gap-2 px-4 py-3 border-t border-[#27272A] bg-[#18181B] mb-16 md:mb-0">
@@ -271,6 +296,15 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
               setIsTyping(true);
               socket.emit("typing:start", { chatId: chat.id });
             }
+
+            if (typingTimeout.current) {
+              clearTimeout(typingTimeout.current);
+            }
+
+            typingTimeout.current = setTimeout(() => {
+              setIsTyping(false);
+              socket.emit("typing:stop", { chatId: chat.id });
+            }, 1000);
           }}
           className="flex-1 bg-[#1E1E25] text-[#E4E6EB] placeholder-gray-500 px-4 py-2 rounded-full text-sm focus:outline-none focus:ring-1 focus:ring-[#A2A970]"
         />
