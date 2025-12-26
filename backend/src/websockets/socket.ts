@@ -102,6 +102,14 @@ export function socketServer(io: Server) {
     }
     console.log(`User ${userId} joined rooms: ${[...socket.rooms].join(", ")}`);
 
+    socket.on("typing:start", ({ chatId }: { chatId: string }) => {
+      io.to(chatId).emit("typing:start", { userId });
+    });
+
+    socket.on("typing:stop", ({ chatId }: { chatId: string }) => {
+      io.to(chatId).emit("typing:stop", { userId });
+    });
+
     socket.on(
       "chat:message",
       async (msg: { chatId: string; content: string }) => {

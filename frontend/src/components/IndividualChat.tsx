@@ -49,6 +49,8 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
   const { user } = useUser();
   const currentUser = user?.id;
   const [isOnline, setIsOnline] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!socket || !chat.otherUserId) return;
@@ -260,7 +262,16 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
           type="text"
           placeholder="Type a message..."
           value={newMsg}
-          onChange={(e) => setNewMsg(e.target.value)}
+          onChange={(e) => {
+            setNewMsg(e.target.value);
+
+            if (!socket) return;
+
+            if (!isTyping) {
+              setIsTyping(true);
+              socket.emit("typing:start", { chatId: chat.id });
+            }
+          }}
           className="flex-1 bg-[#1E1E25] text-[#E4E6EB] placeholder-gray-500 px-4 py-2 rounded-full text-sm focus:outline-none focus:ring-1 focus:ring-[#A2A970]"
         />
         <button
