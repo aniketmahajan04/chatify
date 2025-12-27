@@ -208,7 +208,7 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
   };
 
   return (
-    <section className="flex flex-col flex-1 bg-background text-[#E4E6EB] w-full h-screen">
+    <section className="flex flex-col flex-1 bg-background text-[#E4E6EB] w-full h-screen pb-16 md:pb-0">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#27272A]">
         {/* Left: Avatar + Name */}
@@ -278,8 +278,8 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
           ))}
           {/* Typing Indicator */}
           {otherTyping && (
-            <div className="flex justify-start px-4">
-              <div className="max-w-[70%] px-4 py-2 rounded-2xl bg-[#2A2A35] rounded-bl-none">
+            <div className="flex justify-start">
+              <div className="max-w-[70%] px-4 py-2 rounded-2xl bg-[#2A2A35] rounded-bl-none mb-3">
                 <div className="flex items-center gap-1">
                   <span
                     className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
@@ -308,7 +308,7 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
       </div>
 
       {/* Input */}
-      <div className="flex items-center gap-2 px-4 py-3 border-t border-[#27272A] bg-[#18181B] mb-16 md:mb-0">
+      <div className="flex items-center gap-2 px-4 py-3 border-t border-[#27272A] bg-[#18181B]">
         <input
           type="text"
           placeholder="Type a message..."
