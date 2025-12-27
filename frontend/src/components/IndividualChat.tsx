@@ -253,33 +253,59 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-3 scrollbar-thin scrollbar-thumb-[#27272A] scrollbar-track-transparent space-y-3">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            onContextMenu={(e) => handleRightClick(e, msg)}
-            className={`flex ${
-              msg.sender === "me" ? "justify-end" : "justify-start"
-            }`}
-          >
+        <div className="px-4 space-y-3">
+          {messages.map((msg) => (
             <div
-              className={`max-w-[70%] px-3 py-2 rounded-2xl text-sm shadow-md ${
-                msg.sender === "me"
-                  ? "bg-[#A2A970] text-[#11111b] rounded-br-none"
-                  : "bg-[#2A2A35] text-[#E4E6EB] rounded-bl-none"
+              key={msg.id}
+              onContextMenu={(e) => handleRightClick(e, msg)}
+              className={`flex ${
+                msg.sender === "me" ? "justify-end" : "justify-start"
               }`}
             >
-              <p>{msg.text}</p>
-              <span className="block text-[10px] text-gray-300 mt-1 text-right">
-                {msg.time}
-              </span>
+              <div
+                className={`max-w-[70%] px-3 py-2 rounded-2xl text-sm shadow-md ${
+                  msg.sender === "me"
+                    ? "bg-[#A2A970] text-[#11111b] rounded-br-none"
+                    : "bg-[#2A2A35] text-[#E4E6EB] rounded-bl-none"
+                }`}
+              >
+                <p>{msg.text}</p>
+                <span className="block text-[10px] text-gray-300 mt-1 text-right">
+                  {msg.time}
+                </span>
+              </div>
             </div>
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
+          ))}
+          {/* Typing Indicator */}
+          {otherTyping && (
+            <div className="flex justify-start px-4">
+              <div className="max-w-[70%] px-4 py-2 rounded-2xl bg-[#2A2A35] rounded-bl-none">
+                <div className="flex items-center gap-1">
+                  <span
+                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                    style={{ animationDelay: "0ms", animationDuration: "1.4s" }}
+                  ></span>
+                  <span
+                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                    style={{
+                      animationDelay: "200ms",
+                      animationDuration: "1.4s",
+                    }}
+                  ></span>
+                  <span
+                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                    style={{
+                      animationDelay: "400ms",
+                      animationDuration: "1.4s",
+                    }}
+                  ></span>
+                </div>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
       </div>
-      {otherTyping && (
-        <p className="text-xs text-gray-400 px-4 pb-1">typing...</p>
-      )}
 
       {/* Input */}
       <div className="flex items-center gap-2 px-4 py-3 border-t border-[#27272A] bg-[#18181B] mb-16 md:mb-0">
