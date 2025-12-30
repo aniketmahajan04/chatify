@@ -92,7 +92,7 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
   // Scroll to bottom on new message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, otherTyping]);
 
   const handleSend = () => {
     if (!newMsg.trim() || !socket || !isConnected) return;
@@ -208,7 +208,7 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
   };
 
   return (
-    <section className="flex flex-col flex-1 bg-background text-[#E4E6EB] w-full h-screen pb-16 md:pb-0">
+    <section className="flex flex-col flex-1 bg-background text-[#E4E6EB] w-full h-screen pb-16 md:pb-0 overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#27272A]">
         {/* Left: Avatar + Name */}
@@ -252,8 +252,8 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 scrollbar-thin scrollbar-thumb-[#27272A] scrollbar-track-transparent space-y-3">
-        <div className="px-4 space-y-3">
+      <div className="flex-1 overflow-y-auto px-4 py-3 scrollbar-thin scrollbar-thumb-[#27272A] scrollbar-track-transparent min-h-0">
+        <div className="space-y-3">
           {messages.map((msg) => (
             <div
               key={msg.id}
@@ -279,7 +279,7 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
           {/* Typing Indicator */}
           {otherTyping && (
             <div className="flex justify-start">
-              <div className="max-w-[70%] px-4 py-2 rounded-2xl bg-[#2A2A35] rounded-bl-none mb-3">
+              <div className="max-w-[70%] px-4 py-2 rounded-2xl bg-[#2A2A35] rounded-bl-none">
                 <div className="flex items-center gap-1">
                   <span
                     className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"

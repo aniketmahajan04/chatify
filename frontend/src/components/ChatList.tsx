@@ -52,6 +52,7 @@ export const ChatsList = ({
 
     return {
       ...chat,
+      name: displayName, // Use displayName as name so IndividualChat can display it
       displayName,
       avatar,
       lastMessage,
