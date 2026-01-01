@@ -28,6 +28,8 @@ model User {
   receivedNotifications Notifications[]   @relation("ReceivedNotifications")
   ChatParticipant       ChatParticipant[] @relation("UserClerkRelation")
   Message               Message[]
+  outgoingCalls         Call[] @relation("CallerRelation")
+  incomingCalls         Call[] @relation("ReceiverRelation")
 }
 
 model Notifications {
@@ -50,6 +52,7 @@ model Chat {
   // Relations
   messages     Message[]
   participants ChatParticipant[]
+  calls Call[]
 }
 
 model ChatParticipant {
@@ -75,3 +78,30 @@ model Message {
   chat   Chat @relation(fields: [chatId], references: [id])
   sender User @relation(fields: [senderId], references: [clerkId])
 }
+
+model Call {
+  id  String @id @default(auto()) @map("_id") @db.ObjectId
+  chatId String @db.ObjectId
+  callerId String // ClerkId
+  receiverId String // ClerkId
+  type CallType
+  status CallStatus
+  startedAt DateTime @default(now())
+  endedAt DateTime?
+
+  chat Chat @relation(fields: [chatId], references: [id])
+  caller User @relation("CallerRelation", fields: [callerId], references: [clerkId])
+  receiver User @relation("ReceiverRelation", fields: [receiverId], references: [clerkId])
+
+}
+
+enum CallType {
+  AUDIO
+  VIDEO
+}
+enum CallStatus {
+  MISSED
+  COMPLETED
+  REJECTED
+}
+
