@@ -253,7 +253,7 @@ const callHistory = async (req: Request, res: Response) => {
 
     res.json(calls);
   } catch (err: any) {
-    console.error("Fetch chat error: ", err);
+    console.error("Fetch call history error: ", err);
     res.status(500).json({ success: false, msg: err.message });
   }
 };
