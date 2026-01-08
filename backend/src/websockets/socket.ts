@@ -147,6 +147,32 @@ export function socketServer(io: Server) {
       socket.emit("user:status", { userId: data.userId, isOnline });
     });
 
+    socket.on("webrtc:offer", ({ chatId, offer }) => {
+      socket.to(chatId).emit("webrtc:offer", {
+        from: socket.data.userId,
+        offer,
+      });
+    });
+
+    socket.on("webrtc:answer", ({ chatId, answer }) => {
+      socket.to(chatId).emit("webrtc:answer", {
+        from: socket.data.userId,
+        answer,
+      });
+    });
+    socket.on("webrtc:ice-candidate", ({ chatId, candidate }) => {
+      socket.to(chatId).emit("webrtc:ice-candidate", {
+        from: socket.data.userId,
+        candidate,
+      });
+    });
+
+    socket.on("webrtc:call:end", ({ chatId }) => {
+      socket.to(chatId).emit("webrtc:call:end", {
+        from: socket.data.userId,
+      });
+    });
+
     socket.on("disconnect", async () => {
       const isOffline = removeSockets(socket.id);
       if (isOffline) {
