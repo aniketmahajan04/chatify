@@ -92,6 +92,60 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
     return pc;
   };
 
+  // Start call
+  const startCall = async (isVideoCall: boolean) => {
+    try {
+      setIsVideoCall(isVideoCall);
+
+      // create call record in DB
+      const res = await fetch("http://localhost:3000/chat/call/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          chatId: chat.id,
+          receiverId: chat.otherUserId,
+          type: isVideoCall ? "VIDEO" : "AUDIO",
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to start Call");
+      const callData = await res.json();
+      setCurrentCallId(callData.id);
+
+      // Get local media
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: isVideoCall,
+        audio: true,
+      });
+
+      localStream.current = stream;
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
+      }
+
+      // Create peer connection
+      peerConnection.current = initializePeerConnection();
+      stream.getTracks().forEach((track) => {
+        peerConnection.current?.addTrack(track, stream);
+      });
+
+      // Create and send offer
+      const offer = await peerConnection.current.createOffer();
+      await peerConnection.current.setLocalDescription(offer);
+
+      socket?.emit("webrtc:offer", {
+        chatId: chat.id,
+        offer,
+      });
+
+      setIsInCall(true);
+    } catch (err) {
+      console.error("Error starting call:", err);
+      alert("Failed to start call. Please check permissions.");
+    }
+  };
+
   useEffect(() => {
     if (!socket || !chat.otherUserId) return;
 
