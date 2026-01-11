@@ -54,6 +54,44 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
   const [otherTyping, setOtherTyping] = useState(false);
   const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // WebRTC states
+  const [isInCall, setIsInCall] = useState(false);
+  const [isVideoCall, setIsVideoCall] = useState(false);
+  const [currentCallId, setCurrentCallId] = useState<string | null>(null);
+  const localVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  const peerConnection = useRef<RTCPeerConnection | null>(null);
+  const localStream = useRef<MediaStream | null>(null);
+
+  // Initialize WebRTC
+  const initializePeerConnection = () => {
+    const config: RTCConfiguration = {
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun.l.google.com:19302" },
+      ],
+    };
+
+    const pc = new RTCPeerConnection(config);
+
+    pc.onicecandidate = (e) => {
+      if (e.candidate && socket) {
+        socket.emit("webrtc:ice-candidate", {
+          chatId: chat.id,
+          candidate: e.candidate,
+        });
+      }
+    };
+
+    pc.ontrack = (e) => {
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = e.streams[0];
+      }
+    };
+
+    return pc;
+  };
+
   useEffect(() => {
     if (!socket || !chat.otherUserId) return;
 
