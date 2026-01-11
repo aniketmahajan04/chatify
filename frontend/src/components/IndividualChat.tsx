@@ -146,6 +146,41 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
     }
   };
 
+  // End Call
+  const endCall = async (status: "COMPLETED" | "REJECTED" = "COMPLETED") => {
+    try {
+      // Stop local stream
+      localStream.current?.getTracks().forEach((track) => track.stop());
+      localStream.current = null;
+
+      // Close peer connection
+      peerConnection.current?.close();
+      peerConnection.current = null;
+
+      // Clear Video Elements
+      if (localVideoRef.current) localVideoRef.current.srcObject = null;
+      if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
+
+      // Notify other user
+      socket?.emit("webrtc:call:end", { chatId: chat.id });
+
+      // Update call status in DB
+      if (currentCallId) {
+        await fetch(`http://localhost:3000/chat/call/${currentCallId}/end`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ status }),
+        });
+      }
+
+      setIsInCall(false);
+      setCurrentCallId(null);
+    } catch (err) {
+      console.error("Error ending call:", err);
+    }
+  };
+
   useEffect(() => {
     if (!socket || !chat.otherUserId) return;
 
