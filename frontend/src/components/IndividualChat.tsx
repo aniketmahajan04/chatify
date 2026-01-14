@@ -481,10 +481,16 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
 
         {/* Right: Call & Video Call */}
         <div className="flex items-center gap-4">
-          <button className="p-2 rounded-full hover:bg-[#2A2A35] transition">
+          <button
+            onClick={() => startCall(false)}
+            className="p-2 rounded-full hover:bg-[#2A2A35] transition"
+          >
             <FiPhone className="text-[#E4E6EB] text-lg" />
           </button>
-          <button className="p-2 rounded-full hover:bg-[#2A2A35] transition">
+          <button
+            onClick={() => startCall(true)}
+            className="p-2 rounded-full hover:bg-[#2A2A35] transition"
+          >
             <FiVideo className="text-[#E4E6EB] text-lg" />
           </button>
         </div>
