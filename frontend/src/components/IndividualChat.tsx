@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { FiPhone, FiSend, FiVideo } from "react-icons/fi";
+import { FiPhone, FiPhoneOff, FiSend, FiVideo } from "react-icons/fi";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useSocket } from "./SocketContext";
 import { useUser } from "@clerk/clerk-react";
@@ -181,6 +181,83 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
     }
   };
 
+  // WebRTC event listeners
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleOffer = async ({ from, offer }: any) => {
+      try {
+        // Auto accept for now (you can add UI confirmation)
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: isVideoCall,
+          audio: true,
+        });
+
+        localStream.current = stream;
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = stream;
+        }
+
+        peerConnection.current = initializePeerConnection();
+        stream.getTracks().forEach((track) => {
+          peerConnection.current?.addTrack(track, stream);
+        });
+
+        await peerConnection.current.setRemoteDescription(
+          new RTCSessionDescription(offer)
+        );
+
+        const answer = await peerConnection.current.createAnswer();
+        await peerConnection.current.setLocalDescription(answer);
+
+        socket.emit("webrtc:answer", {
+          chatId: chat.id,
+          answer,
+        });
+
+        setIsInCall(true);
+      } catch (err) {
+        console.error("Error handling offer:", err);
+      }
+    };
+
+    const handleAnswer = async ({ answer }: any) => {
+      try {
+        await peerConnection.current?.setRemoteDescription(
+          new RTCSessionDescription(answer)
+        );
+      } catch (err) {
+        console.error("Error handling answer:", err);
+      }
+    };
+
+    const handleIceCandidate = async ({ candidate }: any) => {
+      try {
+        await peerConnection.current?.addIceCandidate(
+          new RTCIceCandidate(candidate)
+        );
+      } catch (err) {
+        console.error("Error handling ICE candidate:", err);
+      }
+    };
+
+    const handleCallEnd = () => {
+      endCall("REJECTED");
+    };
+
+    socket.on("webrtc:offer", handleOffer);
+    socket.on("webrtc:answer", handleAnswer);
+    socket.on("webrtc:ice-candidate", handleIceCandidate);
+    socket.on("webrtc:end", handleCallEnd);
+
+    return () => {
+      socket.off("webrtc:offer", handleOffer);
+      socket.off("webrtc:answer", handleAnswer);
+      socket.off("webrtc:ice-candidate", handleIceCandidate);
+      socket.off("wertc:call:end", handleCallEnd);
+    };
+  }, [socket, chat.id, isVideoCall]);
+
   useEffect(() => {
     if (!socket || !chat.otherUserId) return;
 
@@ -336,6 +413,41 @@ export const IndividualChat = ({ chat, onBack, onOpenProfile }: Props) => {
 
   return (
     <section className="flex flex-col flex-1 bg-background text-[#E4E6EB] w-full h-screen pb-16 md:pb-0 overflow-hidden">
+      {/* Video call overlay */}
+      {isInCall && (
+        <div className="absolute inset-0 z-50 bg-black flex flex-col">
+          <div className="flex-1 relative">
+            {/* Remote Video */}
+            <video
+              ref={remoteVideoRef}
+              autoPlay
+              playsInline
+              className="w-full h-full object-cover"
+            />
+
+            {/* local Video (Picture-in-Picture) */}
+            {isVideoCall && (
+              <video
+                ref={localVideoRef}
+                autoPlay
+                playsInline
+                muted
+                className="absolute bottom-4 right-4 w-32 h-24 rounded-lg border-2 border-white object-cover"
+              />
+            )}
+          </div>
+
+          {/* Call Controls */}
+          <div className="p-4 flex justify-center gap-4 bg-black/50">
+            <button
+              onClick={() => endCall("COMPLETED")}
+              className="p-4 rounded-full bg-red-500 hover:bg-red-600"
+            >
+              <FiPhoneOff className="text-white text-2xl" />
+            </button>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#27272A]">
         {/* Left: Avatar + Name */}
